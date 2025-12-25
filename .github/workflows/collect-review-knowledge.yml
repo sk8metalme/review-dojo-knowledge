@@ -168,13 +168,14 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          # まずファイルをステージング
+          git add -A security/ performance/ readability/ design/ testing/ error-handling/ other/ archive/
+
           # 変更があるかチェック
           if git diff --quiet && git diff --staged --quiet; then
             echo "No changes to commit"
             exit 0
           fi
-
-          git add -A security/ performance/ readability/ design/ testing/ error-handling/ other/ archive/
 
           git commit -m "$(cat <<'EOF'
           Add knowledge from ${{ steps.pr-info.outputs.PR_URL }}
