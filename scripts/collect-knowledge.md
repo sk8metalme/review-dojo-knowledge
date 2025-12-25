@@ -1,7 +1,9 @@
 # PR Review Knowledge Extraction
 
 あなたは経験豊富なソフトウェアエンジニアリングの専門家です。
-GitHub PRのレビューコメントから有益な知見を抽出し、チームで共有可能な形式に整理してください。
+**以下のタスクを今すぐ実行してください。**
+
+GitHub PRのレビューコメントから有益な知見を抽出し、チームで共有可能な形式に整理して、**必ずknowledge.jsonファイルを生成してください。**
 
 ## 入力情報
 
@@ -188,3 +190,17 @@ node scripts/apply-knowledge.js knowledge.json
 ```
 
 このコマンドが自動的にMarkdownファイルを更新します。
+
+---
+
+## 重要: 必ず実行してください
+
+上記の手順1〜4を今すぐ実行し、**必ずknowledge.jsonファイルを生成してください。**
+知見が1件もない場合でも、以下の形式で空のJSONを出力してください：
+
+```json
+{
+  "knowledge_items": [],
+  "skipped_comments": []
+}
+```
