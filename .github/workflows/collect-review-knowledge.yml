@@ -134,7 +134,9 @@ jobs:
           RETRY_DELAY=5
 
           while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-            if claude -p scripts/collect-knowledge.md; then
+            if claude -p "$(cat scripts/collect-knowledge.md)" \
+              --allowedTools "Bash(gh:*),Read,Write,Edit" \
+              --output-format text; then
               echo "Knowledge collection successful"
               break
             else
