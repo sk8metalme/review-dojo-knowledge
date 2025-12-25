@@ -174,7 +174,7 @@ jobs:
             exit 0
           fi
 
-          git add security/ performance/ readability/ design/ testing/ error-handling/ other/ archive/
+          git add -A security/ performance/ readability/ design/ testing/ error-handling/ other/ archive/
 
           git commit -m "$(cat <<'EOF'
           Add knowledge from ${{ steps.pr-info.outputs.PR_URL }}
