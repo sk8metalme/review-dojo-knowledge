@@ -16,3 +16,5 @@
   ## 自動収集
 
   このリポジトリは GitHub Actions により自動的に更新されます。
+
+## Knowledge Collection Test
