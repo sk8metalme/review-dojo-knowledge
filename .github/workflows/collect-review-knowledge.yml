@@ -168,8 +168,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # まずファイルをステージング
-          git add -A security/ performance/ readability/ design/ testing/ error-handling/ other/ archive/
+          # まずファイルをステージング（新規ディレクトリも含める）
+          git add .
 
           # 変更があるかチェック
           if git diff --quiet && git diff --staged --quiet; then
