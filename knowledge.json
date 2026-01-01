@@ -1,0 +1,20 @@
+{
+  "knowledge_items": [
+    {
+      "category": "security",
+      "language": "java",
+      "severity": "critical",
+      "title": "SQLインジェクション対策",
+      "summary": "SQLインジェクション対策が必要です",
+      "recommendation": "PreparedStatementを使用してパラメータ化されたクエリを実装し、文字列結合によるSQL構築を避ける",
+      "code_example": {
+        "bad": "String sql = \"SELECT * FROM users WHERE id = \" + userId;",
+        "good": "PreparedStatement ps = conn.prepareStatement(\"SELECT * FROM users WHERE id = ?\");\nps.setString(1, userId);"
+      },
+      "file_path": "test.java",
+      "pr_url": "${PR_URL}",
+      "original_comment": "SQLインジェクション対策が必要です"
+    }
+  ],
+  "skipped_comments": []
+}
