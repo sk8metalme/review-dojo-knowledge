@@ -14,7 +14,62 @@
       "file_path": ".github/workflows/trigger-knowledge-collection.yml",
       "pr_url": "https://github.com/sk8metalme/review-dojo-knowledge/pull/3",
       "original_comment": "peter-evans/repository-dispatch@v4 へのアップグレードを確認してください。\n\nv4 アップグレードは適切ですが、以下のブレーキングチェンジに対応が必要です：\n\n- **self-hosted ランナー利用時**: Actions Runner v2.327.1 以上が必須です (Node 24 サポート対応)。このワークフローが self-hosted ランナーで実行される場合は、ランナーのバージョンアップを確認してください。\n- コア入力（token、repository、event-type、client-payload）に変更はありませんので、その他の互換性への影響はありません。\n\nGitHub ホストランナーの場合はこのアップグレードは安全です。"
+    },
+    {
+      "category": "readability",
+      "language": "markdown",
+      "severity": "info",
+      "title": "Markdownドキュメントでコードブロックに言語指定を追加",
+      "summary": "フェンスコードブロック（```）に言語指定がないとシンタックスハイライトが適用されず、可読性が低下する。markdownlint MD040ルール違反。",
+      "recommendation": "すべてのコードブロックに適切な言語識別子（bash, json, text, plaintext等）を指定する。",
+      "code_example": {
+        "bad": "```\nnpm run lint\nnpm run test\n```",
+        "good": "```bash\nnpm run lint\nnpm run test\n```"
+      },
+      "file_path": "CLAUDE.md",
+      "pr_url": "https://github.com/sk8metalme/nodejs-study/pull/8",
+      "original_comment": "markdownlint（MD040）によると、フェンスコードブロックに言語仕様が指定されていません。コマンド例の場合は`bash`を追加しください。"
+    },
+    {
+      "category": "readability",
+      "language": "markdown",
+      "severity": "info",
+      "title": "Markdownで強調の代わりに見出し構造を使用",
+      "summary": "太字強調（**text**）を見出しの代わりに使用すると、文書構造が不明確になり、アクセシビリティツールが正しく解釈できない。markdownlint MD036ルール違反。",
+      "recommendation": "セクションタイトルには強調ではなく適切な見出しレベル（###等）を使用する。",
+      "code_example": {
+        "bad": "**注意: 手動公開は非推奨（CI経由を推奨）**",
+        "good": "### 注意\n\n手動公開は非推奨です。CI経由の公開を推奨します。"
+      },
+      "file_path": "CLAUDE.md",
+      "pr_url": "https://github.com/sk8metalme/nodejs-study/pull/8",
+      "original_comment": "「注意」セクションは、強調（`**...**`）ではなく見出し（`###`）で表現すると、ドキュメント構造がより明確になります。markdownlint（MD036）の推奨に従ってください。"
     }
   ],
-  "skipped_comments": []
+  "skipped_comments": [
+    {
+      "reason": "コードブロック言語指定のみの重複指摘（76行目）",
+      "comment_preview": "Markdownlint-cli2により70以上の箇所でMD040エラーが報告されています..."
+    },
+    {
+      "reason": "コードブロック言語指定のみの重複指摘（115行目）",
+      "comment_preview": "ディレクトリツリーの表示は`tree`形式またはプレーンテキストですが..."
+    },
+    {
+      "reason": "コードブロック言語指定のみの重複指摘（149行目）",
+      "comment_preview": "markdownlint（MD040）に対応するため、ツリー構造表示にも言語指定を追加してください..."
+    },
+    {
+      "reason": "コードブロック言語指定のみの重複指摘（158行目）",
+      "comment_preview": "markdownlint（MD040）に対応するため、ツリー構造表示にも言語指定を追加してください..."
+    },
+    {
+      "reason": "コードブロック言語指定のみの重複指摘（174行目）",
+      "comment_preview": "markdownlint（MD040）に対応するため、ツリー構造表示にも言語指定を追加してください..."
+    },
+    {
+      "reason": "コードブロック言語指定のみの重複指摘（193行目）",
+      "comment_preview": "markdownlint（MD040）に対応するため、依存方向図を示すコードブロックに言語指定を追加してください..."
+    }
+  ]
 }
