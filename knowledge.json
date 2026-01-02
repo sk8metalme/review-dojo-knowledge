@@ -44,6 +44,21 @@
       "file_path": "CLAUDE.md",
       "pr_url": "https://github.com/sk8metalme/nodejs-study/pull/8",
       "original_comment": "「注意」セクションは、強調（`**...**`）ではなく見出し（`###`）で表現すると、ドキュメント構造がより明確になります。markdownlint（MD036）の推奨に従ってください。"
+    },
+    {
+      "category": "readability",
+      "language": "markdown",
+      "severity": "info",
+      "title": "マークダウン：強調記号の代わりにヘッディングを使用",
+      "summary": "ドキュメント構造を改善するため、強調記号 (**...**) の代わりにマークダウンヘッディング (###) を使用する",
+      "recommendation": "セクションタイトルには強調記号ではなく適切なレベルのマークダウンヘッディングを使用し、目次生成やアウトライン表示を可能にする",
+      "code_example": {
+        "bad": "**計画フェーズ（SDD: 仕様駆動開発）**",
+        "good": "### 計画フェーズ（SDD: 仕様駆動開発）"
+      },
+      "file_path": ".claude/CLAUDE.md",
+      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/1",
+      "original_comment": "MD036規則により、強調記号 `**...**` の代わりに、マークダウンヘッディング (`###`) を使用してください。これにより、ドキュメント構造が改善され、目次生成やアウトライン表示が可能になります。"
     }
   ],
   "skipped_comments": [
@@ -70,6 +85,18 @@
     {
       "reason": "コードブロック言語指定のみの重複指摘（193行目）",
       "comment_preview": "markdownlint（MD040）に対応するため、依存方向図を示すコードブロックに言語指定を追加してください..."
+    },
+    {
+      "reason": "未解決のレビュースレッド",
+      "comment_preview": "マークダウン: ベアURLをリンク形式に変更してください..."
+    },
+    {
+      "reason": "未解決のレビュースレッド",
+      "comment_preview": "マークダウン形式: コード言語指定とベアURL の修正が必要です..."
+    },
+    {
+      "reason": "未解決のレビュースレッド",
+      "comment_preview": "cc-sdd インストール手順が欠落しており、ワークフロー内の /kiro: コマンドが未定義です..."
     }
   ]
 }
