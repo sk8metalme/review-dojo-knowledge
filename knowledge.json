@@ -1,34 +1,19 @@
 {
   "knowledge_items": [
     {
-      "category": "error-handling",
-      "language": "shell",
+      "category": "design",
+      "language": "github-actions",
       "severity": "warning",
-      "title": "Cargo 環境ファイルの存在チェック不足",
-      "summary": "~/.cargo/env が存在しない環境で無条件にソースするとシェル起動時にエラーが発生する",
-      "recommendation": "ファイルの存在チェックを行い、存在する場合のみソースする",
+      "title": "GitHub Actions: peter-evans/repository-dispatch v4 アップグレード時のランナーバージョン要件",
+      "summary": "peter-evans/repository-dispatch@v4 にアップグレードする際、self-hosted ランナーを使用している場合は Actions Runner v2.327.1 以上が必須（Node 24 サポート対応）。GitHub ホストランナーの場合は影響なし。",
+      "recommendation": "self-hosted ランナーを使用する場合は Actions Runner v2.327.1 以上にアップグレードすること。コア入力（token、repository、event-type、client-payload）に変更はないため、その他の互換性問題はない。",
       "code_example": {
-        "bad": ". \"$HOME/.cargo/env\"",
-        "good": "# Cargo\nif [ -f \"$HOME/.cargo/env\" ]; then\n    . \"$HOME/.cargo/env\"\nfi"
+        "bad": "# v2 から v4 にアップグレード時、self-hosted ランナーのバージョンを確認していない\nuses: peter-evans/repository-dispatch@v4",
+        "good": "# v4 にアップグレード前に self-hosted ランナーを v2.327.1+ に更新\n# または GitHub ホストランナーを使用\nuses: peter-evans/repository-dispatch@v4\n# runs-on: ubuntu-latest # GitHub ホストランナーの場合は問題なし"
       },
-      "file_path": ".zshenv",
-      "pr_url": "$PR_URL",
-      "original_comment": "**Cargo 環境のファイル存在チェックを追加してください**\n\n`~/.cargo/env` が存在しない場合（Cargo がインストールされていない環境など）、シェル起動時にエラーが発生します。条件付きでソースするようにすることを推奨します。"
-    },
-    {
-      "category": "other",
-      "language": "shell",
-      "severity": "critical",
-      "title": "シェルエイリアスでの環境変数設定の誤り",
-      "summary": "セミコロンで区切られた環境変数設定は現在のシェルにのみ適用され、後続のコマンドに引き継がれない",
-      "recommendation": "環境変数をスペース区切りで記述するか、envコマンドを使用してコマンドに渡す",
-      "code_example": {
-        "bad": "alias yolo=\"ENABLE_TOOL_SEARCH=true; ENABLE_EXPERIMENTAL_MCP_CLI=false; claude --dangerously-skip-permissions\"",
-        "good": "alias yolo=\"ENABLE_TOOL_SEARCH=true ENABLE_EXPERIMENTAL_MCP_CLI=false claude --dangerously-skip-permissions\""
-      },
-      "file_path": "config/zsh/alias.zsh",
-      "pr_url": "$PR_URL",
-      "original_comment": "**yolo エイリアスの環境変数設定に問題があります**\n\n現在の構文では、環境変数が `claude` コマンドに渡されません。セミコロン (`;`) で区切られているため、変数は現在のシェルに設定されますが、後続のコマンドには引き継がれません。"
+      "file_path": ".github/workflows/trigger-knowledge-collection.yml",
+      "pr_url": "https://github.com/sk8metalme/review-dojo-knowledge/pull/3",
+      "original_comment": "peter-evans/repository-dispatch@v4 へのアップグレードを確認してください。\n\nv4 アップグレードは適切ですが、以下のブレーキングチェンジに対応が必要です：\n\n- **self-hosted ランナー利用時**: Actions Runner v2.327.1 以上が必須です (Node 24 サポート対応)。このワークフローが self-hosted ランナーで実行される場合は、ランナーのバージョンアップを確認してください。\n- コア入力（token、repository、event-type、client-payload）に変更はありませんので、その他の互換性への影響はありません。\n\nGitHub ホストランナーの場合はこのアップグレードは安全です。"
     }
   ],
   "skipped_comments": []
