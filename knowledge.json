@@ -1,19 +1,34 @@
 {
   "knowledge_items": [
     {
-      "category": "security",
-      "language": "java",
-      "severity": "critical",
-      "title": "SQLインジェクション対策",
-      "summary": "SQLインジェクション対策が必要です",
-      "recommendation": "PreparedStatementを使用してパラメータ化されたクエリを実装し、文字列結合によるSQL構築を避ける",
+      "category": "error-handling",
+      "language": "shell",
+      "severity": "warning",
+      "title": "Cargo 環境ファイルの存在チェック不足",
+      "summary": "~/.cargo/env が存在しない環境で無条件にソースするとシェル起動時にエラーが発生する",
+      "recommendation": "ファイルの存在チェックを行い、存在する場合のみソースする",
       "code_example": {
-        "bad": "String sql = \"SELECT * FROM users WHERE id = \" + userId;",
-        "good": "PreparedStatement ps = conn.prepareStatement(\"SELECT * FROM users WHERE id = ?\");\nps.setString(1, userId);"
+        "bad": ". \"$HOME/.cargo/env\"",
+        "good": "# Cargo\nif [ -f \"$HOME/.cargo/env\" ]; then\n    . \"$HOME/.cargo/env\"\nfi"
       },
-      "file_path": "test.java",
-      "pr_url": "${PR_URL}",
-      "original_comment": "SQLインジェクション対策が必要です"
+      "file_path": ".zshenv",
+      "pr_url": "$PR_URL",
+      "original_comment": "**Cargo 環境のファイル存在チェックを追加してください**\n\n`~/.cargo/env` が存在しない場合（Cargo がインストールされていない環境など）、シェル起動時にエラーが発生します。条件付きでソースするようにすることを推奨します。"
+    },
+    {
+      "category": "other",
+      "language": "shell",
+      "severity": "critical",
+      "title": "シェルエイリアスでの環境変数設定の誤り",
+      "summary": "セミコロンで区切られた環境変数設定は現在のシェルにのみ適用され、後続のコマンドに引き継がれない",
+      "recommendation": "環境変数をスペース区切りで記述するか、envコマンドを使用してコマンドに渡す",
+      "code_example": {
+        "bad": "alias yolo=\"ENABLE_TOOL_SEARCH=true; ENABLE_EXPERIMENTAL_MCP_CLI=false; claude --dangerously-skip-permissions\"",
+        "good": "alias yolo=\"ENABLE_TOOL_SEARCH=true ENABLE_EXPERIMENTAL_MCP_CLI=false claude --dangerously-skip-permissions\""
+      },
+      "file_path": "config/zsh/alias.zsh",
+      "pr_url": "$PR_URL",
+      "original_comment": "**yolo エイリアスの環境変数設定に問題があります**\n\n現在の構文では、環境変数が `claude` コマンドに渡されません。セミコロン (`;`) で区切られているため、変数は現在のシェルに設定されますが、後続のコマンドには引き継がれません。"
     }
   ],
   "skipped_comments": []
