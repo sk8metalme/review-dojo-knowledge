@@ -59,6 +59,21 @@
       "file_path": ".claude/CLAUDE.md",
       "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/1",
       "original_comment": "MD036規則により、強調記号 `**...**` の代わりに、マークダウンヘッディング (`###`) を使用してください。これにより、ドキュメント構造が改善され、目次生成やアウトライン表示が可能になります。"
+    },
+    {
+      "category": "readability",
+      "language": "markdown",
+      "severity": "info",
+      "title": "Markdownリンクフラグメントは見出しと一致させる",
+      "summary": "README内の内部リンクのフラグメント識別子が実際の見出しと一致していなかった。markdownlint MD051ルール違反。",
+      "recommendation": "内部リンクのフラグメントは、実際の見出しのslugと完全に一致させる必要があります。見出しに番号プレフィックス（例: '1.'）がある場合、フラグメントにも含める必要があります",
+      "code_example": {
+        "bad": "[グローバル設定](#-グローバル設定のインストール)\n// 実際の見出し: ### 1. グローバル設定のインストール",
+        "good": "[グローバル設定](#1-グローバル設定のインストール)\n// 実際の見出し: ### 1. グローバル設定のインストール"
+      },
+      "file_path": "README.md",
+      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/35",
+      "original_comment": "Line 9のリンク`#-グローバル設定のインストール`は、Line 169の実際の見出し`### 1. グローバル設定のインストール`と一致しません。番号プレフィックスが欠落しています。"
     }
   ],
   "skipped_comments": [
@@ -97,6 +112,10 @@
     {
       "reason": "未解決のレビュースレッド",
       "comment_preview": "cc-sdd インストール手順が欠落しており、ワークフロー内の /kiro: コマンドが未定義です..."
+    },
+    {
+      "reason": "未解決のレビュースレッド（isResolved = false）",
+      "comment_preview": "既存のhooks設定が上書きされる可能性があります - Line 101の`jq`マージ処理（`.[0] * .[1]`）は浅いマージであり、既存の`hooks`設定全体を新しい設定で置き換えます..."
     }
   ]
 }
