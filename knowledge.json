@@ -74,6 +74,21 @@
       "file_path": "README.md",
       "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/35",
       "original_comment": "Line 9のリンク`#-グローバル設定のインストール`は、Line 169の実際の見出し`### 1. グローバル設定のインストール`と一致しません。番号プレフィックスが欠落しています。"
+    },
+    {
+      "category": "design",
+      "language": "markdown",
+      "severity": "warning",
+      "title": "Claude Code plugin.json仕様の命名規則とキー不足の修正",
+      "summary": "plugin.jsonのサポートキー表が公式Claude仕様と不一致。`skills`を`commands`に修正が必要。`mcpServers`はキャメルケース表記にすべき。また`homepage`、`category`、`tags`、`strict`などのサポート済みキーが表から漏落している。",
+      "recommendation": "公式仕様に従い、以下を修正：1) `skills`→`commands`（コマンドマークダウンファイルへのパスまたはパス配列）、2) `mcp_servers`→`mcpServers`（キャメルケース）、3) 漏落キーの追加：`homepage`（ドキュメント/プロジェクトURL）、`category`/`tags`（マーケットプレイス検索フィールド）、`strict`（マニフェスト検証の強制設定フラグ）",
+      "code_example": {
+        "bad": "| skills | スキル定義 | いいえ |\n| mcp_servers | MCPサーバー設定 | いいえ |",
+        "good": "| commands | コマンドマークダウンファイルへのパスまたはパス配列 | いいえ |\n| mcpServers | MCPサーバー設定（キャメルケース） | いいえ |\n| homepage | ドキュメント/プロジェクトURL | いいえ |\n| category | マーケットプレイスカテゴリ | いいえ |\n| tags | 検索タグ配列 | いいえ |\n| strict | マニフェスト検証強制フラグ | いいえ |"
+      },
+      "file_path": "CLAUDE.md",
+      "pr_url": "https://github.com/sk8metalme/dotfiles/pull/20",
+      "original_comment": "プラグイン定義表の複数の不足および命名一貫性の問題を修正してください。\n\n公式のClaudeプラグイン仕様と比較すると、サポートキー表に以下の問題があります：\n\n- `skills`は`commands`に修正する必要があります（コマンドファイルへのパスまたはパス配列を指定）\n- 以下のサポート済みキーが表から漏落しています：`homepage`（ドキュメント/プロジェクトURL）、`category`/`tags`（マーケットプレイス検索フィールド）、`strict`（マニフェスト検証の強制設定）、`commands`（コマンドマークダウンファイルパス配列）\n- `mcp_servers`は公式仕様では`mcpServers`（キャメルケース）と記載されています\n\n表を公式仕様に完全に合わせることで、開発者の参考価値が向上します。"
     }
   ],
   "skipped_comments": [
