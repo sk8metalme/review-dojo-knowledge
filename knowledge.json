@@ -89,6 +89,21 @@
       "file_path": "CLAUDE.md",
       "pr_url": "https://github.com/sk8metalme/dotfiles/pull/20",
       "original_comment": "プラグイン定義表の複数の不足および命名一貫性の問題を修正してください。\n\n公式のClaudeプラグイン仕様と比較すると、サポートキー表に以下の問題があります：\n\n- `skills`は`commands`に修正する必要があります（コマンドファイルへのパスまたはパス配列を指定）\n- 以下のサポート済みキーが表から漏落しています：`homepage`（ドキュメント/プロジェクトURL）、`category`/`tags`（マーケットプレイス検索フィールド）、`strict`（マニフェスト検証の強制設定）、`commands`（コマンドマークダウンファイルパス配列）\n- `mcp_servers`は公式仕様では`mcpServers`（キャメルケース）と記載されています\n\n表を公式仕様に完全に合わせることで、開発者の参考価値が向上します。"
+    },
+    {
+      "category": "design",
+      "language": "markdown",
+      "severity": "warning",
+      "title": "無効なコマンド参照を避ける",
+      "summary": "ドキュメント内で存在しないコマンドを参照しており、ユーザーが実行できない指示を提供している",
+      "recommendation": "ドキュメント内でコマンドを参照する際は、そのコマンドが実際に存在することを確認する。存在しない場合は、代替コマンドに置き換えるか、該当ステップを削除する。外部プラグインが必要な場合は、前提条件として明記する",
+      "code_example": {
+        "bad": "/kiro:validate-gap $1",
+        "good": "/michi:validate-design $1 または該当ステップを削除"
+      },
+      "file_path": "plugins/michi/commands/michi/spec-requirements.md",
+      "pr_url": "https://github.com/sk8metalme/michi/pull/169",
+      "original_comment": "Line 72 の `/kiro:validate-gap $1` は存在しないコマンドです。このリポジトリに kiro プラグインがなく、michi プラグインにも `/michi:validate-gap` がありません。ユーザーが実行できない指示を提供することになるため、以下のいずれかで対応してください：\n\n- このステップを削除する\n- 実在するコマンド（例：`/michi:validate-design $1`）に置き換える\n- kiro との連携が必須の場合は、前提条件を明確に記載する"
     }
   ],
   "skipped_comments": [
@@ -131,6 +146,14 @@
     {
       "reason": "未解決のレビュースレッド（isResolved = false）",
       "comment_preview": "既存のhooks設定が上書きされる可能性があります - Line 101の`jq`マージ処理（`.[0] * .[1]`）は浅いマージであり、既存の`hooks`設定全体を新しい設定で置き換えます..."
+    },
+    {
+      "reason": "未解決のレビュースレッド（isResolved = false）",
+      "comment_preview": "ハードコードされた設定値は使用されていません - projectId: 'default'、projectName: 'Default Project'、jiraKey: 'PROJ' のハードコード値は、このコード経路では実際に使用されず..."
+    },
+    {
+      "reason": "未解決のレビュースレッド（isResolved = false）",
+      "comment_preview": "`~/.michi/` パスのファイル名が無視されるバグ - `~/.michi/custom.env` のようなカスタムファイル名を渡しても、常に `~/.michi/.env` が返されます..."
     }
   ]
 }
