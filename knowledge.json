@@ -149,6 +149,51 @@
       "file_path": "install-global.sh",
       "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/38",
       "original_comment": "_⚠️ Potential issue_ | _🟡 Minor_\n\n**パーミッション確認ロジックにプラットフォーム互換性の問題があります。**\n\nLine 179の `stat` コマンドによるパーミッション確認が、macOS（BSD）とLinux（GNU）で異なる出力形式のため、正確に機能しません"
+    },
+    {
+      "category": "readability",
+      "language": "markdown",
+      "severity": "critical",
+      "title": "ドキュメントリンクの検証を必須化",
+      "summary": "マイグレーション後のドキュメント内で、存在しないファイルへのリンクが複数発見された。.michi/steering/構造への参照が壊れており、ユーザーがドキュメントを参照できない状態となっている。",
+      "recommendation": "PRレビュー時にドキュメントリンクの自動検証を実装する。マイグレーションやリネーム作業後は、必ずリンク切れチェックを実行すること。CI/CDパイプラインにマークダウンリンク検証ツールを組み込むことを推奨。",
+      "code_example": {
+        "bad": "# マイグレーション後の参照\n- [構造ガイド](.michi/steering/structure.md)\n- [ワークフロー](.michi/steering/workflow.md)\n\n// 実際のファイル位置が変更されているがリンクは更新されていない",
+        "good": "# マイグレーション後の検証付き参照\n- [ワークフロー](./docs/guides/workflow.md)\n\n# CI/CDでの検証例\n# .github/workflows/docs-check.yml\n- name: Check markdown links\n  run: |\n    npm install -g markdown-link-check\n    find . -name '*.md' -exec markdown-link-check {} \\;"
+      },
+      "file_path": "docs/MIGRATION.md",
+      "pr_url": "https://github.com/sk8metalme/michi/pull/166",
+      "original_comment": "`.michi/steering/`に参照されているドキュメントファイルが存在しません。修正が必要です。行503-504のドキュメント参照パスが壊れています：- `.michi/steering/`ディレクトリが存在しない- `structure.md`がリポジトリ内に見つからない- `workflow.md`は`./docs/guides/workflow.md`に存在するが、参照パスが間違っている"
+    },
+    {
+      "category": "readability",
+      "language": "markdown",
+      "severity": "warning",
+      "title": "マイグレーション後の用語統一",
+      "summary": "Kiroからmichiへのマイグレーション後、ドキュメント内のラベルやコマンド参照が古い名称のまま残っている。特にユーザー向けメッセージやエラー文で不整合が発生している。",
+      "recommendation": "マイグレーション作業では、コードだけでなくドキュメント、エラーメッセージ、ログ出力も含めた全体的な用語の置換を実施すること。検索・置換の自動化スクリプトを用意し、手動での見落としを防ぐ。",
+      "code_example": {
+        "bad": "# ドキュメント内のラベル\nKiro directory: {{SPEC_DIR}}  # 値は.michiを指しているのにラベルはKiro\n\n# エラーメッセージ\nconsole.log('先に/kiro:spec-requirements を実行してください');  # 新しいコマンドは/michi:*",
+        "good": "# 統一された用語\nSpec directory: {{SPEC_DIR}}  # またはMichi directory\n\n# 更新されたエラーメッセージ\nconsole.log('先に/michi:spec-requirements を実行してください');\n\n# マイグレーションスクリプト例\n#!/bin/bash\nfind . -type f \\( -name '*.md' -o -name '*.ts' \\) -exec sed -i 's|/kiro:|/michi:|g' {} \\;\nfind . -type f -name '*.md' -exec sed -i 's|Kiro directory|Spec directory|g' {} \\;"
+      },
+      "file_path": "plugins/michi/commands/michi/confluence-sync.md",
+      "pr_url": "https://github.com/sk8metalme/michi/pull/166",
+      "original_comment": "コマンドドキュメントのラベルを更新してください。行43のラベルは「Kiro directory:」のままですが、値は{{SPEC_DIR}}（.michi directory）を参照しています。ラベルとの整合性を取るため、「Spec directory:」または「Michi directory:」に更新してください。"
+    },
+    {
+      "category": "readability",
+      "language": "markdown",
+      "severity": "critical",
+      "title": ".michiディレクトリの不在によるリンク切れ",
+      "summary": "scripts/README.mdで.michiディレクトリ配下のファイルを参照しているが、リポジトリに.michiディレクトリそのものが存在しない。全てのリンクが404となっている。",
+      "recommendation": "ドキュメント構造とファイルシステム構造を一致させること。存在しないディレクトリへの参照は絶対に避ける。新規ディレクトリや構造変更を伴う場合は、ファイル作成とドキュメント更新を同一PRで実施すべき。",
+      "code_example": {
+        "bad": "# 存在しないディレクトリへの参照\n- [設計ドキュメント](../.michi/specs/onion-architecture/design.md)\n- [構造ガイド](../.michi/steering/structure.md)\n- [ワークフローガイド](../.michi/steering/workflow.md)\n\n// .michiディレクトリが存在しないため全てリンク切れ",
+        "good": "# アプローチ1: ディレクトリとファイルを作成\nmkdir -p .michi/specs/onion-architecture\nmkdir -p .michi/steering\n# 必要なドキュメントを配置\n\n# アプローチ2: 既存ドキュメントへ修正\n- [設計ドキュメント](./docs/architecture.md)\n- [ワークフローガイド](./docs/guides/workflow.md)\n\n# PRレビューでのチェック項目\n# - 新規リンクの追加時は対象ファイルの存在確認\n# - CI/CDでリンク検証を自動実行"
+      },
+      "file_path": "scripts/README.md",
+      "pr_url": "https://github.com/sk8metalme/michi/pull/166",
+      "original_comment": "破損したドキュメントリンクを修正してください。参照先ファイルが存在しません。`.michi` ディレクトリ自体がリポジトリに存在せず、以下のすべてのドキュメントリンクが破損しています：- `../.michi/specs/onion-architecture/design.md`- `../.michi/steering/structure.md`- `../.michi/steering/workflow.md`"
     }
   ],
   "skipped_comments": [
@@ -199,6 +244,22 @@
     {
       "reason": "未解決のレビュースレッド（isResolved = false）",
       "comment_preview": "`~/.michi/` パスのファイル名が無視されるバグ - `~/.michi/custom.env` のようなカスタムファイル名を渡しても、常に `~/.michi/.env` が返されます..."
+    },
+    {
+      "reason": "未解決スレッド（isResolved=false）- PR #166",
+      "comment_preview": "ベースコマンドパスを michi に更新してください。`@.claude/commands/kiro/spec-status.md` は `@.claude/commands/michi/spec-status.md` に更新が必要です。"
+    },
+    {
+      "reason": "未解決スレッド（isResolved=false）- PR #166",
+      "comment_preview": "ベースコマンドファイルが存在しません。`plugins/michi/commands/michi/validate-gap.md` 内で参照されている `.claude/commands/kiro/validate-gap.md` が見つかりません。"
+    },
+    {
+      "reason": "未解決スレッド（isResolved=false）- PR #166",
+      "comment_preview": "ドキュメント化されたコマンドの実装状況を明記してください。3つのコマンド（`/michi:generate-tests`、`/michi:fix-security`、`/michi:optimize`）がドキュメントに記載されていますが、コードベース内に実装がありません。"
+    },
+    {
+      "reason": "未解決スレッド（isResolved=false）- PR #166",
+      "comment_preview": "パス更新は完了していますが、コマンド参照に不整合があります。ファイルシステムパスは `.kiro` から `.michi` へ正しく更新されていますが、エラーメッセージ内のコマンド参照が古いままです。"
     }
   ]
 }
