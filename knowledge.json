@@ -1,20 +1,119 @@
 {
-  "knowledge_items": [],
-  "skipped_comments": [
+  "knowledge_items": [
     {
-      "reason": "フォーマット・スタイルのみ（マークダウンリストインデント）",
-      "comment_preview": "マークダウンのリストインデント を修正してください。行19～22のリスト項目が3スペースインデントされていますが、マークダウン規則（MD007）に従い0インデントで揃える必要があります。",
-      "file_path": "plugins/development-toolkit/commands/create_pr.md",
-      "is_resolved": true
+      "category": "error-handling",
+      "language": "bash",
+      "severity": "critical",
+      "title": "未初期化変数によるパラメータ展開エラー",
+      "summary": "言語が検出されない場合、配列変数(INFRA_MISSING, INFRA_OPTIONAL_MISSING, INFRA_RECOMMENDED_MISSING)とフラグ(DEVCONTAINER_MISSING)が未初期化のまま使用され、実行時エラーが発生する",
+      "recommendation": "Step 2（言語検出）の直後に、全言語で共通する変数をデフォルト値で初期化してください。空配列で初期化することで、言語が未検出でも安全に処理できます。",
+      "code_example": {
+        "bad": "# 言語検出後に初期化なし\nif [ \"$DETECTED_LANG\" = \"unknown\" ]; then\n  echo \"言語未検出\"\nfi\n# 後で ${#INFRA_MISSING[@]} を参照するとエラー",
+        "good": "# Step 2の後に追加\nINFRA_MISSING=()\nINFRA_OPTIONAL_MISSING=()\nINFRA_RECOMMENDED_MISSING=()\nDEVCONTAINER_MISSING=false\n# 各言語ブロックで必要に応じて上書き"
+      },
+      "file_path": "plugins/michi/commands/michi/spec-impl.md",
+      "pr_url": "https://github.com/sk8metalme/michi/pull/166",
+      "original_comment": "Step 2 で言語が \"unknown\" と判定された場合、以下の配列が初期化されません: INFRA_MISSING, INFRA_OPTIONAL_MISSING, INFRA_RECOMMENDED_MISSING, DEVCONTAINER_MISSING。その結果、Step 4(line 406-449)の出力セクションで、${#INFRA_MISSING[@]} などの参照が空配列ではなく未定義変数として扱われ、予期しない動作が発生します。"
+    },
+    {
+      "category": "design",
+      "language": "bash",
+      "severity": "warning",
+      "title": "grep による設定ファイル検証の脆弱性",
+      "summary": "JSON、TOML、YAML など複数形式の設定ファイルを grep で検証すると、コメント内の誤検知や形式の違いによる見落としが発生する",
+      "recommendation": "言語別に適切なパーサーを使用してください：JSON は jq、TOML は tomllib/tomli、YAML は yq など。パーサーが利用できない場合のみ grep にフォールバックする設計にすることで、堅牢性が向上します。",
+      "code_example": {
+        "bad": "# package.json の検証\nif grep -q '\"strict\".*true' tsconfig.json; then\n  echo \"strict mode enabled\"\nfi\n# スペースやコメントで誤検知/見落とし",
+        "good": "# jq を使用したパース\nif command -v jq >/dev/null 2>&1; then\n  if jq -e '.compilerOptions.strict == true' tsconfig.json >/dev/null 2>&1; then\n    echo \"strict mode enabled\"\n  fi\nelse\n  # フォールバック\n  grep -q '\"strict\".*true' tsconfig.json\nfi"
+      },
+      "file_path": "plugins/michi/commands/michi/spec-impl.md",
+      "pr_url": "https://github.com/sk8metalme/michi/pull/166",
+      "original_comment": "複数の設定チェック(例: line 269の lint-staged、line 273-275の TypeScript strict mode)が grep パターンマッチングに依存しており、以下の問題があります: 1. 形式の多様性: JSON、TOML、YAML など複数の形式に対応する必要があり、単純な正規表現では不十分 2. 偽陽性: コメント内に同じテキストがあると誤検知 3. 偽陰性: スペースやフォーマットの違いでマッチしない可能性"
+    },
+    {
+      "category": "design",
+      "language": "java",
+      "severity": "warning",
+      "title": "Java 依存関係検出の不完全な実装",
+      "summary": "NullAway、ArchUnit、Spotless などの Java ツールの検出が単純な grep のみで実装されており、Maven プラグイン座標、Gradle プラグイン ID、Kotlin DSL、マルチモジュール構成に対応していない",
+      "recommendation": "XML パーサー（xmllint または xq）を使用して Maven の pom.xml をパースする、または Gradle ファイルについては ripgrep の -U オプションでマルチライン検索を行う。サブモジュールも含めて再帰的に検索してください。",
+      "code_example": {
+        "bad": "# トップレベルの pom.xml のみ検索\nif ! grep -q \"nullaway\\|error_prone\" pom.xml 2>/dev/null; then\n  INFRA_MISSING+=(\"NullAway\")\nfi",
+        "good": "# 再帰的に全 pom.xml を検索\nif ! find . -name 'pom.xml' -exec grep -q \"nullaway\\|error_prone\" {} \\; ; then\n  INFRA_MISSING+=(\"NullAway\")\nfi\n# または xmllint で構造化パース\n# xmllint --xpath \"//groupId[text()='com.uber.nullaway']\" pom.xml"
+      },
+      "file_path": "plugins/michi/commands/michi/spec-impl.md",
+      "pr_url": "https://github.com/sk8metalme/michi/pull/166",
+      "original_comment": "行 303-306 で NullAway の検出を試みていますが、以下の問題があります: 1. 依存関係の表記法の多様性: Maven と Gradle で依存関係の記述方法が異なり、単純な grep では不足 2. モジュール化プロジェクト: マルチモジュール構成では各モジュールの pom.xml で定義される可能性 3. プラグイン vs 依存: NullAway は通常、コンパイラプラグインとして設定されます"
+    },
+    {
+      "category": "design",
+      "language": "python",
+      "severity": "warning",
+      "title": "Python/PHP 設定ファイルの grep ベース検証",
+      "summary": "pyproject.toml や composer.json の内容を grep で検証すると、TOML のテーブル形式や JSON のフォーマットの違いにより不正確な結果になる",
+      "recommendation": "Python の pyproject.toml には tomllib/tomli、PHP の composer.json には jq を使用してパースしてください。設定ファイルの存在確認のみに簡略化し、詳細検証は各言語のツールに任せる選択肢もあります。",
+      "code_example": {
+        "bad": "# pyproject.toml を grep で検証\nif ! grep -q \"ruff\\|black\\|flake8\" pyproject.toml 2>/dev/null; then\n  INFRA_MISSING+=(\"Linter\")\nfi\n# コメント内のテキストでも誤検知",
+        "good": "# tomllib でパース\nif command -v python3 >/dev/null 2>&1; then\n  python3 -c '\nimport sys, tomllib\nwith open(\"pyproject.toml\", \"rb\") as f:\n  data = tomllib.load(f)\n  if \"tool\" in data and (\"ruff\" in data[\"tool\"] or \"black\" in data[\"tool\"]):\n    sys.exit(0)\nsys.exit(1)'\n  if [ $? -eq 0 ]; then\n    echo \"Linter configured\"\n  fi\nfi"
+      },
+      "file_path": "plugins/michi/commands/michi/spec-impl.md",
+      "pr_url": "https://github.com/sk8metalme/michi/pull/166",
+      "original_comment": "Python (行 338-341): pyproject.toml の内容を grep で検証しても、テーブル形式([tool.ruff] など)では不正確。例えば ruff が # ruff config というコメント内に存在するだけでも grep にマッチ。PHP (行 377-379): composer.json を grep で検査しているが、JSON 形式の場合、適切なパーサーを使用すべき"
+    },
+    {
+      "category": "other",
+      "language": "nodejs",
+      "severity": "critical",
+      "title": "存在しない npm パッケージの参照",
+      "summary": "ts-arch-kit という npm パッケージは存在せず、正しいパッケージ名は tsarch である",
+      "recommendation": "パッケージ名を tsarch に修正してください。インストールコマンドは npm install --save-dev tsarch、Jest マッチャーのインポートは tsarch/dist/jest です。",
+      "code_example": {
+        "bad": "# 存在しないパッケージ\nnpm install --save-dev ts-arch-kit\nimport \"ts-arch-kit/jest\"",
+        "good": "# 正しいパッケージ名\nnpm install --save-dev tsarch\nimport \"tsarch/dist/jest\""
+      },
+      "file_path": "plugins/michi/commands/michi/spec-tasks.md",
+      "pr_url": "https://github.com/sk8metalme/michi/pull/166",
+      "original_comment": "ts-arch-kit は存在しない npm パッケージです。正しいパッケージ名に修正してください。Node.js セットアップ例で参照されている ts-arch-kit は npm レジストリに存在しません。正しいパッケージ名は tsarch です。"
+    },
+    {
+      "category": "readability",
+      "language": "markdown",
+      "severity": "info",
+      "title": "マークダウン規格: emphasis を heading に変更",
+      "summary": "見出しとして機能するテキストが太字（emphasis）で表現されており、markdown の heading 記号を使用すべき",
+      "recommendation": "太字（**テキスト**）を適切な見出しレベル（#### テキスト など）に変更してください。markdownlint の MD036 ルールに準拠します。",
+      "code_example": {
+        "bad": "**サブエージェント結果の集約**\n\nここから説明が始まります...",
+        "good": "#### サブエージェント結果の集約\n\nここから説明が始まります..."
+      },
+      "file_path": "plugins/michi/commands/michi/spec-impl.md",
+      "pr_url": "https://github.com/sk8metalme/michi/pull/166",
+      "original_comment": "Line 215 の「**サブエージェント結果の集約**」は emphasis（太字）で表現されていますが、markdownlint-cli2 の MD036 ルールでは見出しは適切な見出し記号（#, ##, ### など）を使用すべきです。"
+    },
+    {
+      "category": "readability",
+      "language": "markdown",
+      "severity": "info",
+      "title": "マークダウン規格: コードブロックに言語指定が必要",
+      "summary": "フェンス付きコードブロックに言語タグが指定されていないため、markdownlint の MD040 ルールに違反している",
+      "recommendation": "コードブロックの開始記号（```）の後に適切な言語タグ（bash、text、json など）を追加してください。",
+      "code_example": {
+        "bad": "```\nCIプラットフォームを選択してください:\nA) GitHub Actions（推奨）\nB) Screwdriver\n```",
+        "good": "```text\nCIプラットフォームを選択してください:\nA) GitHub Actions（推奨）\nB) Screwdriver\n```"
+      },
+      "file_path": "plugins/michi/commands/michi/spec-design.md",
+      "pr_url": "https://github.com/sk8metalme/michi/pull/166",
+      "original_comment": "35行目と54行目のコードブロックに言語指定がありません。これらは選択肢表示とプロンプトであるため、text を指定してください。"
     }
   ],
+  "skipped_comments": [],
   "metadata": {
-    "pr_url": "${PR_URL}",
-    "pr_number": "${PR_NUMBER}",
-    "repository": "${REPO_OWNER}/${REPO_NAME}",
+    "pr_url": "https://github.com/sk8metalme/michi/pull/166",
+    "pr_number": "166",
+    "repository": "sk8metalme/michi",
     "extraction_date": "2026-01-04",
-    "total_resolved_threads": 1,
-    "extracted_knowledge_count": 0,
-    "skipped_comments_count": 1
+    "total_resolved_threads": 13,
+    "extracted_knowledge_count": 7,
+    "skipped_comments_count": 0
   }
 }

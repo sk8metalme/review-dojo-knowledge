@@ -50,27 +50,6 @@
 - **発生回数**: 1
 - **概要**: マイグレーション後のドキュメント内で、存在しないファイルへのリンクが複数発見された。.michi/steering/構造への参照が壊れており、ユーザーがドキュメントを参照できない状態となっている。
 - **推奨対応**: PRレビュー時にドキュメントリンクの自動検証を実装する。マイグレーションやリネーム作業後は、必ずリンク切れチェックを実行すること。CI/CDパイプラインにマークダウンリンク検証ツールを組み込むことを推奨。
-- **コード例**:
-  ```
-  // NG
-  # マイグレーション後の参照
-- [構造ガイド](.michi/steering/structure.md)
-- [ワークフロー](.michi/steering/workflow.md)
-
-// 実際のファイル位置が変更されているがリンクは更新されていない
-  ```
-  ```
-  // OK
-  # マイグレーション後の検証付き参照
-- [ワークフロー](./docs/guides/workflow.md)
-
-# CI/CDでの検証例
-# .github/workflows/docs-check.yml
-- name: Check markdown links
-  run: |
-    npm install -g markdown-link-check
-    find . -name '*.md' -exec markdown-link-check {} \;
-  ```
 - **対象ファイル例**: `docs/MIGRATION.md`
 - **参照PR**:
   - https://github.com/sk8metalme/michi/pull/166
@@ -82,28 +61,6 @@
 - **発生回数**: 1
 - **概要**: Kiroからmichiへのマイグレーション後、ドキュメント内のラベルやコマンド参照が古い名称のまま残っている。特にユーザー向けメッセージやエラー文で不整合が発生している。
 - **推奨対応**: マイグレーション作業では、コードだけでなくドキュメント、エラーメッセージ、ログ出力も含めた全体的な用語の置換を実施すること。検索・置換の自動化スクリプトを用意し、手動での見落としを防ぐ。
-- **コード例**:
-  ```
-  // NG
-  # ドキュメント内のラベル
-Kiro directory: {{SPEC_DIR}}  # 値は.michiを指しているのにラベルはKiro
-
-# エラーメッセージ
-console.log('先に/kiro:spec-requirements を実行してください');  # 新しいコマンドは/michi:*
-  ```
-  ```
-  // OK
-  # 統一された用語
-Spec directory: {{SPEC_DIR}}  # またはMichi directory
-
-# 更新されたエラーメッセージ
-console.log('先に/michi:spec-requirements を実行してください');
-
-# マイグレーションスクリプト例
-#!/bin/bash
-find . -type f \( -name '*.md' -o -name '*.ts' \) -exec sed -i 's|/kiro:|/michi:|g' {} \;
-find . -type f -name '*.md' -exec sed -i 's|Kiro directory|Spec directory|g' {} \;
-  ```
 - **対象ファイル例**: `plugins/michi/commands/michi/confluence-sync.md`
 - **参照PR**:
   - https://github.com/sk8metalme/michi/pull/166
@@ -115,32 +72,59 @@ find . -type f -name '*.md' -exec sed -i 's|Kiro directory|Spec directory|g' {} 
 - **発生回数**: 1
 - **概要**: scripts/README.mdで.michiディレクトリ配下のファイルを参照しているが、リポジトリに.michiディレクトリそのものが存在しない。全てのリンクが404となっている。
 - **推奨対応**: ドキュメント構造とファイルシステム構造を一致させること。存在しないディレクトリへの参照は絶対に避ける。新規ディレクトリや構造変更を伴う場合は、ファイル作成とドキュメント更新を同一PRで実施すべき。
+- **対象ファイル例**: `scripts/README.md`
+- **参照PR**:
+  - https://github.com/sk8metalme/michi/pull/166
+
+---
+## マークダウン規格: emphasis を heading に変更
+
+- **重要度**: info
+- **発生回数**: 1
+- **概要**: 見出しとして機能するテキストが太字（emphasis）で表現されており、markdown の heading 記号を使用すべき
+- **推奨対応**: 太字（**テキスト**）を適切な見出しレベル（#### テキスト など）に変更してください。markdownlint の MD036 ルールに準拠します。
 - **コード例**:
   ```
   // NG
-  # 存在しないディレクトリへの参照
-- [設計ドキュメント](../.michi/specs/onion-architecture/design.md)
-- [構造ガイド](../.michi/steering/structure.md)
-- [ワークフローガイド](../.michi/steering/workflow.md)
+  **サブエージェント結果の集約**
 
-// .michiディレクトリが存在しないため全てリンク切れ
+ここから説明が始まります...
   ```
   ```
   // OK
-  # アプローチ1: ディレクトリとファイルを作成
-mkdir -p .michi/specs/onion-architecture
-mkdir -p .michi/steering
-# 必要なドキュメントを配置
+  #### サブエージェント結果の集約
 
-# アプローチ2: 既存ドキュメントへ修正
-- [設計ドキュメント](./docs/architecture.md)
-- [ワークフローガイド](./docs/guides/workflow.md)
-
-# PRレビューでのチェック項目
-# - 新規リンクの追加時は対象ファイルの存在確認
-# - CI/CDでリンク検証を自動実行
+ここから説明が始まります...
   ```
-- **対象ファイル例**: `scripts/README.md`
+- **対象ファイル例**: `plugins/michi/commands/michi/spec-impl.md`
+- **参照PR**:
+  - https://github.com/sk8metalme/michi/pull/166
+
+---
+## マークダウン規格: コードブロックに言語指定が必要
+
+- **重要度**: info
+- **発生回数**: 1
+- **概要**: フェンス付きコードブロックに言語タグが指定されていないため、markdownlint の MD040 ルールに違反している
+- **推奨対応**: コードブロックの開始記号（```）の後に適切な言語タグ（bash、text、json など）を追加してください。
+- **コード例**:
+  ```
+  // NG
+  ```
+CIプラットフォームを選択してください:
+A) GitHub Actions（推奨）
+B) Screwdriver
+```
+  ```
+  ```
+  // OK
+  ```text
+CIプラットフォームを選択してください:
+A) GitHub Actions（推奨）
+B) Screwdriver
+```
+  ```
+- **対象ファイル例**: `plugins/michi/commands/michi/spec-design.md`
 - **参照PR**:
   - https://github.com/sk8metalme/michi/pull/166
 
