@@ -1,95 +1,30 @@
 {
   "knowledge_items": [
     {
-      "category": "readability",
+      "category": "design",
       "language": "bash",
       "severity": "warning",
-      "title": "正規表現パターンが引数内のカンマを含む文字列で誤検出する",
-      "summary": "Rel()引数検証の正規表現パターン `Rel([^,]+,[^,]+,[^,]+,[^,]+)` は、引数内にカンマを含む文字列（例：\"Uses, connects\"）がある場合に誤検出します",
-      "recommendation": "完全な検証には構文解析が必要ですが、より堅牢なチェックとして、開始括弧から終了括弧までを抽出し、カンマの数をカウントする方法を使用する。あるいは、この検証ステップを削除し、Mermaidパーサー自体にエラー検出を委ねることも検討してください",
+      "title": "jqマージ演算子の順序に注意",
+      "summary": "jqの`*`演算子を使用したマージで、引数の順序によって上書き優先順位が決まる。`.[0] * .[1]`では右辺（.[1]）が左辺（.[0]）を上書きする。",
+      "recommendation": "ユーザーのカスタマイズを保持したい場合は、テンプレートを先（.[0]）、ユーザー設定を後（.[1]）に配置する。つまり`jq -s '.[0] * .[1]' \"$template\" \"$settings\"`とすることで、既存のユーザー設定が優先される。",
       "code_example": {
-        "bad": "grep -E 'Rel\\([^,]+,[^,]+,[^,]+,[^,]+\\)' /tmp/extracted-mermaid.txt",
-        "good": "# Rel()の引数チェック - 単純なカウント方式\ngrep -E 'Rel\\(' /tmp/extracted-mermaid.txt | while read -r line; do\n    # 開始括弧から終了括弧までを抽出し、引数の数を大まかにチェック\n    arg_count=$(echo \"$line\" | grep -o ',' | wc -l)\n    if [ \"$arg_count\" -ne 3 ]; then\n        echo \"WARNING: Rel() may have incorrect number of arguments: $line\"\n    fi\ndone"
+        "bad": "jq -s '.[0] * .[1]' \"$settings\" \"$template\"",
+        "good": "jq -s '.[0] * .[1]' \"$template\" \"$settings\""
       },
-      "file_path": "plugins/development-toolkit/agents/mermaid-validator/AGENT.md",
-      "pr_url": "https://github.com/sk8metalme/michi/pull/170",
-      "original_comment": "Line 63 の `Rel()` 引数検証パターン `Rel([^,]+,[^,]+,[^,]+,[^,]+)` は、引数内にカンマを含む文字列（例：`\"Uses, connects\"`）がある場合に誤検出します。"
-    },
-    {
-      "category": "other",
-      "language": "bash",
-      "severity": "warning",
-      "title": "sedコマンドでGNU拡張を使用すると移植性の問題が発生する",
-      "summary": "sed コマンドで `\\+` は GNU sed 拡張で、BSD sed（macOS デフォルト）では動作しません。また、既に `->>` となっているケースを `->>>` に変更してしまう誤マッチの可能性があります",
-      "recommendation": "BSD sed（macOS）との互換性を確保するため、POSIX 互換の正規表現を使用してください。`[A-Za-z]\\+` の代わりに `[A-Za-z][A-Za-z]*` を使用し、右辺のマッチで既に `>>` が含まれている場合を除外する（例：`[^>]` を使用）",
-      "code_example": {
-        "bad": "sed -i 's/\\([A-Za-z]\\+\\)->\\([A-Za-z]\\+\\):/\\1->>\\2:/g' \"$FILE\"",
-        "good": "# \"->\" → \"->>\"（同期呼び出し）\n# 既に \">>\" が含まれている場合は除外\nsed -i 's/\\([A-Za-z][A-Za-z]*\\)->\\([^>]\\)/\\1->>\\2/g' \"$FILE\""
-      },
-      "file_path": "plugins/development-toolkit/agents/mermaid-validator/AGENT.md",
-      "pr_url": "https://github.com/sk8metalme/michi/pull/170",
-      "original_comment": "Line 112 のシーケンス図の矢印修正コマンドには問題があります：1. **移植性の問題**: `\\+` は GNU sed 拡張で、BSD sed（macOS デフォルト）では動作しません 2. **誤マッチの可能性**: 既に `User->>` となっているケースを `User->>>` に変更してしまいます"
-    },
-    {
-      "category": "security",
-      "language": "bash",
-      "severity": "critical",
-      "title": "保護されたブランチ（main/master）への直接pushを防ぐガードが必要",
-      "summary": "main/master への直接 push 禁止は重要なセキュリティルールです。実装時に、現在のブランチが main/master でないことを検証するガード条件を追加することを強く推奨します",
-      "recommendation": "push実行時のフロー（Step 1 またはワークフロー開始時）に、現在のブランチを検出し、main または master の場合は処理を中止するガードを実装してください",
-      "code_example": {
-        "bad": "# ガードなしでpushを実行\ngit push origin HEAD",
-        "good": "# ブランチ保護チェック実装\nCURRENT_BRANCH=$(git branch --show-current)\nif [[ \"$CURRENT_BRANCH\" == \"main\" || \"$CURRENT_BRANCH\" == \"master\" ]]; then\n    echo \"❌ 保護されたブランチでは実行できません\"\n    exit 1\nfi\n# pushを実行\ngit push origin HEAD"
-      },
-      "file_path": "plugins/development-toolkit/agents/pr-size-monitor/AGENT.md",
-      "pr_url": "https://github.com/sk8metalme/michi/pull/170",
-      "original_comment": "必須確認ケースと禁止事項が明確に列挙されています。特に line 305 の main/master への直接 push 禁止は重要です。実装時に、現在のブランチが main/master でないことを検証するガード条件を追加することを強く推奨します。"
-    },
-    {
-      "category": "readability",
-      "language": "bash",
-      "severity": "warning",
-      "title": "警告メッセージが不正確で矛盾している",
-      "summary": "パターンは `->` を検出していますが、警告メッセージが「Use '->' instead of '->'」となっており矛盾しています。Step 4 の修正ルールと一貫性を保つ必要があります",
-      "recommendation": "警告メッセージを \"Use '->>' instead of '->'\" に修正してください",
-      "code_example": {
-        "bad": "grep -E '([A-Za-z]+)->([A-Za-z]+):' /tmp/extracted-mermaid.txt && echo \"WARNING: Use '->' instead of '->'\"",
-        "good": "grep -E '([A-Za-z]+)->([A-Za-z]+):' /tmp/extracted-mermaid.txt && echo \"WARNING: Use '->>' instead of '->'\""
-      },
-      "file_path": "plugins/development-toolkit/agents/mermaid-validator/AGENT.md",
-      "pr_url": "https://github.com/sk8metalme/michi/pull/170",
-      "original_comment": "Line 79 の警告メッセージが矛盾しています。パターンは `->` を検出していますが、警告は「`->'の代わりに`->'を使用してください」となっています。このメッセージは `\"Use '->>' instead of '->'\"` に修正する必要があります"
-    },
-    {
-      "category": "other",
-      "language": "bash",
-      "severity": "warning",
-      "title": "sedコマンドでGNU拡張と制限的なパターンを使用している",
-      "summary": "ER 図リレーションシップ修正コマンドで、`\\+` は GNU sed 拡張で BSD sed（macOS）では動作せず、`[A-Z_]` パターンは数字を含むエンティティ名に対応していません",
-      "recommendation": "POSIX互換パターンを使用し、数字を含むエンティティ名に対応するため、`[A-Z_]+` を `[A-Z_][A-Z_0-9]*` に置き換えてください",
-      "code_example": {
-        "bad": "sed -i 's/\\([A-Z_]\\+\\)\\s*->\\s*\\([A-Z_]\\+\\)/\\1 ||--o{ \\2/g' \"$FILE\"",
-        "good": "# POSIX互換: [A-Z_]+ → [A-Z_][A-Z_0-9]* （BSD sed対応）\nsed -i 's/\\([A-Z_][A-Z_0-9]*\\)\\s*->\\s*\\([A-Z_][A-Z_0-9]*\\)/\\1 ||--o{ \\2/g' \"$FILE\""
-      },
-      "file_path": "plugins/development-toolkit/agents/mermaid-validator/AGENT.md",
-      "pr_url": "https://github.com/sk8metalme/michi/pull/170",
-      "original_comment": "Line 138 の ER 図リレーションシップ修正コマンドに2つの問題があります：1. **互換性**: `\\+` は GNU sed 拡張で、BSD sed（macOS）では動作しません 2. **パターンの制限**: `[A-Z_]` は数字を含むエンティティ名に対応していません"
+      "file_path": "install-global.sh",
+      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/48",
+      "original_comment": "現在のマージ順序 `jq -s '.[0] * .[1]' \"$settings\" \"$template\"` では、テンプレートの値が既存の settings.json を**上書き**します（jq の `*` 演算子は右辺の値を優先）。\n\nユーザーのカスタマイズを保持したい場合は、順序を逆にする必要があります"
     }
   ],
-  "skipped_comments": [
-    {
-      "reason": "未解決のスレッド（isResolved = false）",
-      "comment_preview": "コードブロックに言語指定を追加してください（markdownlint MD040）"
-    }
-  ],
+  "skipped_comments": [],
   "metadata": {
-    "pr_url": "https://github.com/sk8metalme/michi/pull/170",
-    "pr_number": "170",
-    "repository": "sk8metalme/michi",
-    "extraction_date": "2026-01-08",
-    "total_review_threads": 6,
-    "resolved_threads": 5,
-    "extracted_knowledge_count": 5,
-    "skipped_comments_count": 1
+    "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/48",
+    "pr_number": "48",
+    "repository": "sk8metalme/ai-agent-setup",
+    "extraction_date": "2026-01-10",
+    "total_review_threads": 1,
+    "resolved_threads": 1,
+    "extracted_knowledge_count": 1,
+    "skipped_comments_count": 0
   }
 }
