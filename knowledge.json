@@ -1,30 +1,65 @@
 {
   "knowledge_items": [
     {
-      "category": "error-handling",
-      "language": "shell",
+      "category": "design",
+      "language": "json",
       "severity": "warning",
-      "title": "エラー抑制によるトラブルシューティングの困難化",
-      "summary": "2>/dev/null でエラーメッセージを完全に隠蔽すると、デバッグが困難になる",
-      "recommendation": "エラーメッセージをキャプチャして条件付きで表示するか、フォールバック処理を実装する",
+      "title": "プラグインマニフェストの相対パス参照",
+      "summary": "プラグインマニフェスト（plugin.json）でスキルファイルを参照する際、ディレクトリ構造に基づいた正確な相対パスを使用する必要がある。.claude-plugin/ディレクトリ内のmanifestから親ディレクトリ下のリソースを参照する場合は「../」を使用する。",
+      "recommendation": "マニフェストファイルの位置を基準に、参照するスキルファイルへの相対パスを正確に記述してください。ディレクトリ構造を確認し、必要に応じて「../」で親ディレクトリを指定する。",
       "code_example": {
-        "bad": "ccstatusline_output=$(echo \"$input\" | ccstatusline 2>/dev/null)",
-        "good": "ccstatusline_output=$(echo \"$input\" | ccstatusline 2>&1)\nif [ $? -ne 0 ]; then\n  echo \"Error: ccstatusline failed\" >&2\n  exit 1\nfi"
+        "bad": "\"skills\": [\n  \"./skills/dd/SKILL.md\"\n]",
+        "good": "\"skills\": [\n  \"../skills/dd/SKILL.md\"\n]"
       },
-      "file_path": "global/hooks/statusline.sh",
-      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/50",
-      "original_comment": "エラー抑制がトラブルシューティングを困難にする可能性があります。\n\n`2>/dev/null`により`ccstatusline`のエラーメッセージが完全に隠蔽されます。デバッグログや条件付きエラー出力を検討してください。"
+      "file_path": "plugins/dd/.claude-plugin/plugin.json",
+      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/54",
+      "original_comment": "プラグインマニフェストのスキル参照パスを修正してください。Line 17のパス参照 `\"./skills/dd/SKILL.md\"` は、`.claude-plugin/` ディレクトリからの相対パスですが、実際のスキルファイルは親ディレクトリ下に配置されています。"
+    },
+    {
+      "category": "design",
+      "language": "markdown",
+      "severity": "warning",
+      "title": "ワークフローの終了判定基準の明確化",
+      "summary": "反復的なワークフロー（質問応答サイクル等）において、終了判定基準が曖昧だと運用上の不確定性が生じる。「重要な不明点」などの抽象的な基準は具体的に定義し、最大反復回数の上限を設け、ユーザーが拒否した場合の遷移も明記する必要がある。",
+      "recommendation": "1) 終了判定で使用する用語（例：「重要な不明点」）を具体的に定義する（例：実装アーキテクチャ・要件・制約に直接影響を与える未解決事項）\n2) ユーザーが終了提案を拒否した場合の処理フロー（どのステップに戻るか、何を再確認するか）を明記する\n3) 無限ループを防ぐため、推奨最大反復回数（例：通常5ラウンド以内、最大10ラウンド）と超過時の対応を設定する",
+      "code_example": {
+        "bad": "## ステップ7: 終了提案\n重要な不明点がなければ終了を提案する。\n\nユーザーに確認：「これで十分ですか？」",
+        "good": "## ステップ7: 終了提案\n【重要な不明点の定義】\n実装アーキテクチャ・要件・制約に直接影響を与える未解決事項（例：API仕様、認証方式、データフォーマット等）\n\n【終了判定】\n- 上記の重要な不明点がすべて解決済み → 終了を提案\n- ユーザーが「いいえ」と回答 → 新たな不明点を特定してステップ3に戻る\n\n【安全上限】\n- 推奨：通常5ラウンド以内\n- 最大：10ラウンド（超過時は要件凍結または上位承認）"
+      },
+      "file_path": "plugins/dd/skills/dd/SKILL.md",
+      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/54",
+      "original_comment": "ワークフローの終了判定基準が不十分で、運用上の曖昧性が残っています。ステップ7の終了提案について、「重要な不明点」の定義がない、ユーザー拒否時の処理が未定義、最大反復回数の上限がないという問題があります。"
+    },
+    {
+      "category": "other",
+      "language": "markdown",
+      "severity": "critical",
+      "title": "外部リポジトリのコミット参照の検証",
+      "summary": "ドキュメント内で外部リポジトリのコミットハッシュを参照する際、そのコミットが実際に存在することを確認する必要がある。存在しないコミットへのリンクは404エラーとなり、読者に誤った情報を提供することになる。",
+      "recommendation": "外部リポジトリへのコミット参照を記載する前に、以下を確認してください：\n1) コミットハッシュが正確であること\n2) リンクが有効であること（実際にアクセスして確認）\n3) 無効な参照は削除するか、正しいハッシュ/公式ドキュメントのURLに置き換える",
+      "code_example": {
+        "bad": "**参考:** [Commit 870624f](https://github.com/anthropics/claude-code/commit/870624fc1581a70590e382f263e2972b3f1e56f5) - Skills のスラッシュコマンドメニュー対応",
+        "good": "**参考:** [Claude Code Skills Documentation](https://docs.anthropic.com/claude-code/skills) - Skills のスラッシュコマンドメニュー対応\n\n# または、有効なコミットハッシュを使用\n**参考:** [Commit abc1234](https://github.com/anthropics/claude-code/commit/abc1234567890abcdef) - Skills のスラッシュコマンドメニュー対応"
+      },
+      "file_path": "CLAUDE.md",
+      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/54",
+      "original_comment": "外部コミット参照が無効です。コミットハッシュ `870624fc1581a70590e382f263e2972b3f1e56f5` は anthropics/claude-code リポジトリに存在しません。提供されているリンクは 404 エラーになります。"
     }
   ],
-  "skipped_comments": [],
+  "skipped_comments": [
+    {
+      "reason": "未解決のレビュースレッド（isResolved = false）",
+      "comment_preview": "Markdownリント問題を修正してください。Line 134 (MD036): セクション見出しとして emphasis（太字）ではなく、heading（###）を使用..."
+    }
+  ],
   "metadata": {
-    "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/50",
-    "pr_number": "50",
+    "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/54",
+    "pr_number": "54",
     "repository": "sk8metalme/ai-agent-setup",
     "extraction_date": "2026-01-11",
-    "total_review_threads": 1,
-    "resolved_threads": 1,
-    "extracted_knowledge_count": 1,
-    "skipped_comments_count": 0
+    "total_review_threads": 4,
+    "resolved_threads": 3,
+    "extracted_knowledge_count": 3,
+    "skipped_comments_count": 1
   }
 }
