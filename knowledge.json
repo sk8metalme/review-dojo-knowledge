@@ -1,27 +1,27 @@
 {
   "knowledge_items": [
     {
-      "category": "design",
-      "language": "bash",
+      "category": "error-handling",
+      "language": "shell",
       "severity": "warning",
-      "title": "jqマージ演算子の順序に注意",
-      "summary": "jqの`*`演算子を使用したマージで、引数の順序によって上書き優先順位が決まる。`.[0] * .[1]`では右辺（.[1]）が左辺（.[0]）を上書きする。",
-      "recommendation": "ユーザーのカスタマイズを保持したい場合は、テンプレートを先（.[0]）、ユーザー設定を後（.[1]）に配置する。つまり`jq -s '.[0] * .[1]' \"$template\" \"$settings\"`とすることで、既存のユーザー設定が優先される。",
+      "title": "エラー抑制によるトラブルシューティングの困難化",
+      "summary": "2>/dev/null でエラーメッセージを完全に隠蔽すると、デバッグが困難になる",
+      "recommendation": "エラーメッセージをキャプチャして条件付きで表示するか、フォールバック処理を実装する",
       "code_example": {
-        "bad": "jq -s '.[0] * .[1]' \"$settings\" \"$template\"",
-        "good": "jq -s '.[0] * .[1]' \"$template\" \"$settings\""
+        "bad": "ccstatusline_output=$(echo \"$input\" | ccstatusline 2>/dev/null)",
+        "good": "ccstatusline_output=$(echo \"$input\" | ccstatusline 2>&1)\nif [ $? -ne 0 ]; then\n  echo \"Error: ccstatusline failed\" >&2\n  exit 1\nfi"
       },
-      "file_path": "install-global.sh",
-      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/48",
-      "original_comment": "現在のマージ順序 `jq -s '.[0] * .[1]' \"$settings\" \"$template\"` では、テンプレートの値が既存の settings.json を**上書き**します（jq の `*` 演算子は右辺の値を優先）。\n\nユーザーのカスタマイズを保持したい場合は、順序を逆にする必要があります"
+      "file_path": "global/hooks/statusline.sh",
+      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/50",
+      "original_comment": "エラー抑制がトラブルシューティングを困難にする可能性があります。\n\n`2>/dev/null`により`ccstatusline`のエラーメッセージが完全に隠蔽されます。デバッグログや条件付きエラー出力を検討してください。"
     }
   ],
   "skipped_comments": [],
   "metadata": {
-    "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/48",
-    "pr_number": "48",
+    "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/50",
+    "pr_number": "50",
     "repository": "sk8metalme/ai-agent-setup",
-    "extraction_date": "2026-01-10",
+    "extraction_date": "2026-01-11",
     "total_review_threads": 1,
     "resolved_threads": 1,
     "extracted_knowledge_count": 1,
