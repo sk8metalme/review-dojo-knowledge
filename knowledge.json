@@ -1,65 +1,39 @@
 {
   "knowledge_items": [
     {
-      "category": "design",
+      "category": "readability",
       "language": "json",
       "severity": "warning",
-      "title": "プラグインマニフェストの相対パス参照",
-      "summary": "プラグインマニフェスト（plugin.json）でスキルファイルを参照する際、ディレクトリ構造に基づいた正確な相対パスを使用する必要がある。.claude-plugin/ディレクトリ内のmanifestから親ディレクトリ下のリソースを参照する場合は「../」を使用する。",
-      "recommendation": "マニフェストファイルの位置を基準に、参照するスキルファイルへの相対パスを正確に記述してください。ディレクトリ構造を確認し、必要に応じて「../」で親ディレクトリを指定する。",
+      "title": "JSON形式でのコメント使用に関する注意",
+      "summary": "JSONサンプルコード内に標準JSONでは無効なインラインコメントが含まれており、ユーザーがそのまま使用するとパースエラーが発生する可能性がある",
+      "recommendation": "JSONコードブロック内のコメントを削除するか、コードブロックの言語指定を `jsonc` (JSON with Comments) に変更する。または、コメントをJSON外部に説明として記載する。",
       "code_example": {
-        "bad": "\"skills\": [\n  \"./skills/dd/SKILL.md\"\n]",
-        "good": "\"skills\": [\n  \"../skills/dd/SKILL.md\"\n]"
-      },
-      "file_path": "plugins/dd/.claude-plugin/plugin.json",
-      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/54",
-      "original_comment": "プラグインマニフェストのスキル参照パスを修正してください。Line 17のパス参照 `\"./skills/dd/SKILL.md\"` は、`.claude-plugin/` ディレクトリからの相対パスですが、実際のスキルファイルは親ディレクトリ下に配置されています。"
-    },
-    {
-      "category": "design",
-      "language": "markdown",
-      "severity": "warning",
-      "title": "ワークフローの終了判定基準の明確化",
-      "summary": "反復的なワークフロー（質問応答サイクル等）において、終了判定基準が曖昧だと運用上の不確定性が生じる。「重要な不明点」などの抽象的な基準は具体的に定義し、最大反復回数の上限を設け、ユーザーが拒否した場合の遷移も明記する必要がある。",
-      "recommendation": "1) 終了判定で使用する用語（例：「重要な不明点」）を具体的に定義する（例：実装アーキテクチャ・要件・制約に直接影響を与える未解決事項）\n2) ユーザーが終了提案を拒否した場合の処理フロー（どのステップに戻るか、何を再確認するか）を明記する\n3) 無限ループを防ぐため、推奨最大反復回数（例：通常5ラウンド以内、最大10ラウンド）と超過時の対応を設定する",
-      "code_example": {
-        "bad": "## ステップ7: 終了提案\n重要な不明点がなければ終了を提案する。\n\nユーザーに確認：「これで十分ですか？」",
-        "good": "## ステップ7: 終了提案\n【重要な不明点の定義】\n実装アーキテクチャ・要件・制約に直接影響を与える未解決事項（例：API仕様、認証方式、データフォーマット等）\n\n【終了判定】\n- 上記の重要な不明点がすべて解決済み → 終了を提案\n- ユーザーが「いいえ」と回答 → 新たな不明点を特定してステップ3に戻る\n\n【安全上限】\n- 推奨：通常5ラウンド以内\n- 最大：10ラウンド（超過時は要件凍結または上位承認）"
-      },
-      "file_path": "plugins/dd/skills/dd/SKILL.md",
-      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/54",
-      "original_comment": "ワークフローの終了判定基準が不十分で、運用上の曖昧性が残っています。ステップ7の終了提案について、「重要な不明点」の定義がない、ユーザー拒否時の処理が未定義、最大反復回数の上限がないという問題があります。"
-    },
-    {
-      "category": "other",
-      "language": "markdown",
-      "severity": "critical",
-      "title": "外部リポジトリのコミット参照の検証",
-      "summary": "ドキュメント内で外部リポジトリのコミットハッシュを参照する際、そのコミットが実際に存在することを確認する必要がある。存在しないコミットへのリンクは404エラーとなり、読者に誤った情報を提供することになる。",
-      "recommendation": "外部リポジトリへのコミット参照を記載する前に、以下を確認してください：\n1) コミットハッシュが正確であること\n2) リンクが有効であること（実際にアクセスして確認）\n3) 無効な参照は削除するか、正しいハッシュ/公式ドキュメントのURLに置き換える",
-      "code_example": {
-        "bad": "**参考:** [Commit 870624f](https://github.com/anthropics/claude-code/commit/870624fc1581a70590e382f263e2972b3f1e56f5) - Skills のスラッシュコマンドメニュー対応",
-        "good": "**参考:** [Claude Code Skills Documentation](https://docs.anthropic.com/claude-code/skills) - Skills のスラッシュコマンドメニュー対応\n\n# または、有効なコミットハッシュを使用\n**参考:** [Commit abc1234](https://github.com/anthropics/claude-code/commit/abc1234567890abcdef) - Skills のスラッシュコマンドメニュー対応"
+        "bad": "{\n  \"plugins\": [\n    {\n      \"name\": \"my-plugin\",\n      \"source\": \"./plugins/my-plugin\",\n      \"version\": \"1.0.0\",\n      \"skills\": [\"./skills/my-skill\"]  // ← これが必須！\n    }\n  ]\n}",
+        "good": "{\n  \"plugins\": [\n    {\n      \"name\": \"my-plugin\",\n      \"source\": \"./plugins/my-plugin\",\n      \"version\": \"1.0.0\",\n      \"skills\": [\"./skills/my-skill\"]\n    }\n  ]\n}\n\n> **Note:** `skills` 配列の定義が必須です。"
       },
       "file_path": "CLAUDE.md",
-      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/54",
-      "original_comment": "外部コミット参照が無効です。コミットハッシュ `870624fc1581a70590e382f263e2972b3f1e56f5` は anthropics/claude-code リポジトリに存在しません。提供されているリンクは 404 エラーになります。"
+      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/57",
+      "original_comment": "**skills 登録要件のドキュメント追加を承認します。**\n\n2箇所（plugin.json と marketplace.json）での skills 定義が必要であることを明確に説明しており、「Unknown skill」エラーを防ぐための良いガイダンスです。\n\nただし、JSON サンプル内のコメント（line 181: `// .claude-plugin/marketplace.json`、line 188: `// ← これが必須！`）は、標準 JSON では無効な構文です。ユーザーがこのまま使用するとパースエラーになる可能性があります。"
     }
   ],
   "skipped_comments": [
     {
-      "reason": "未解決のレビュースレッド（isResolved = false）",
-      "comment_preview": "Markdownリント問題を修正してください。Line 134 (MD036): セクション見出しとして emphasis（太字）ではなく、heading（###）を使用..."
+      "reason": "未解決のスレッド（isResolved = false）",
+      "comment_preview": "プラグイン定義のバージョン同期は正しいですが、スキル実装が欠落しています。各プラグインの `skills` 配列が marketplace.json に正しく追加されており..."
+    },
+    {
+      "reason": "未解決のスレッド（isResolved = false）",
+      "comment_preview": "スキルパスが不正です。marketplace.jsonの全プラグインで参照されているスキルファイルが存在しません。marketplace.jsonで指定されている..."
     }
   ],
   "metadata": {
-    "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/54",
-    "pr_number": "54",
+    "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/57",
+    "pr_number": "57",
     "repository": "sk8metalme/ai-agent-setup",
-    "extraction_date": "2026-01-11",
-    "total_review_threads": 4,
-    "resolved_threads": 3,
-    "extracted_knowledge_count": 3,
-    "skipped_comments_count": 1
+    "extraction_date": "2026-01-12",
+    "total_review_threads": 3,
+    "resolved_threads": 1,
+    "extracted_knowledge_count": 1,
+    "skipped_comments_count": 2
   }
 }
