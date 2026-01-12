@@ -1,39 +1,45 @@
 {
   "knowledge_items": [
     {
-      "category": "readability",
-      "language": "json",
+      "category": "design",
+      "language": "markdown",
       "severity": "warning",
-      "title": "JSON形式でのコメント使用に関する注意",
-      "summary": "JSONサンプルコード内に標準JSONでは無効なインラインコメントが含まれており、ユーザーがそのまま使用するとパースエラーが発生する可能性がある",
-      "recommendation": "JSONコードブロック内のコメントを削除するか、コードブロックの言語指定を `jsonc` (JSON with Comments) に変更する。または、コメントをJSON外部に説明として記載する。",
+      "title": "テンプレートの言語サポートと実装の不一致",
+      "summary": "テンプレートが複数言語（TypeScript/Python/Go/Rust）をサポートすると主張しているが、実装例はTypeScript/npmのみである",
+      "recommendation": "以下のいずれかの対応を実施する：(1) TypeScript専用テンプレートであることを明記する、(2) 言語ごとに個別のテンプレートファイルを作成する",
       "code_example": {
-        "bad": "{\n  \"plugins\": [\n    {\n      \"name\": \"my-plugin\",\n      \"source\": \"./plugins/my-plugin\",\n      \"version\": \"1.0.0\",\n      \"skills\": [\"./skills/my-skill\"]  // ← これが必須！\n    }\n  ]\n}",
-        "good": "{\n  \"plugins\": [\n    {\n      \"name\": \"my-plugin\",\n      \"source\": \"./plugins/my-plugin\",\n      \"version\": \"1.0.0\",\n      \"skills\": [\"./skills/my-skill\"]\n    }\n  ]\n}\n\n> **Note:** `skills` 配列の定義が必須です。"
+        "bad": "**Language**: [TypeScript/Python/Go/Rust]\n**Package Manager**: [npm/PyPI/crates.io/Go modules]",
+        "good": "**Language**: TypeScript\n**Package Manager**: npm\n\n# または言語別ファイルに分割:\n# library.ts.md, library.py.md, library.go.md, library.rs.md"
       },
-      "file_path": "CLAUDE.md",
-      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/57",
-      "original_comment": "**skills 登録要件のドキュメント追加を承認します。**\n\n2箇所（plugin.json と marketplace.json）での skills 定義が必要であることを明確に説明しており、「Unknown skill」エラーを防ぐための良いガイダンスです。\n\nただし、JSON サンプル内のコメント（line 181: `// .claude-plugin/marketplace.json`、line 188: `// ← これが必須！`）は、標準 JSON では無効な構文です。ユーザーがこのまま使用するとパースエラーになる可能性があります。"
-    }
-  ],
-  "skipped_comments": [
-    {
-      "reason": "未解決のスレッド（isResolved = false）",
-      "comment_preview": "プラグイン定義のバージョン同期は正しいですが、スキル実装が欠落しています。各プラグインの `skills` 配列が marketplace.json に正しく追加されており..."
+      "file_path": "plugins/development-toolkit/skills/claude-md-creator/assets/templates/library.md",
+      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/60",
+      "original_comment": "**テンプレートが複数言語をサポートすると主張していますが、実装例はTypeScript/npmのみです。**\n\nこのテンプレートは TypeScript/Python/Go/Rust のサポートを示唆していますが、以降のすべてのコード例（コマンド、設定ファイル、ワークフロー）は TypeScript と npm に特化しています。Python、Go、または Rust を選択したユーザーは、このテンプレートをそのまま使用できません。\n\n解決策:\n1. TypeScript 専用テンプレートであることを明記する（推奨）\n2. または、言語ごとに個別のテンプレートファイルを作成する"
     },
     {
-      "reason": "未解決のスレッド（isResolved = false）",
-      "comment_preview": "スキルパスが不正です。marketplace.jsonの全プラグインで参照されているスキルファイルが存在しません。marketplace.jsonで指定されている..."
+      "category": "readability",
+      "language": "markdown",
+      "severity": "info",
+      "title": "Markdownのfenced code blocksに言語タグが必要",
+      "summary": "ディレクトリ構造を示すコードブロックに言語識別子が指定されていない",
+      "recommendation": "コードブロックの開始記号を ``` から ```text に変更し、Markdownリンターが認識できるようにする",
+      "code_example": {
+        "bad": "```\nsrc/\n├── index.ts\n├── core/\n```",
+        "good": "```text\nsrc/\n├── index.ts\n├── core/\n```"
+      },
+      "file_path": "plugins/development-toolkit/skills/claude-md-creator/assets/templates/library.md",
+      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/60",
+      "original_comment": "**コードブロックに言語タグを追加してください。**\n\nディレクトリ構造を示すコードブロックに言語識別子が指定されていません。Markdown リンターがこの問題を検出しています。"
     }
   ],
+  "skipped_comments": [],
   "metadata": {
-    "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/57",
-    "pr_number": "57",
+    "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/60",
+    "pr_number": "60",
     "repository": "sk8metalme/ai-agent-setup",
     "extraction_date": "2026-01-12",
-    "total_review_threads": 3,
-    "resolved_threads": 1,
-    "extracted_knowledge_count": 1,
-    "skipped_comments_count": 2
+    "total_review_threads": 2,
+    "resolved_threads": 2,
+    "extracted_knowledge_count": 2,
+    "skipped_comments_count": 0
   }
 }

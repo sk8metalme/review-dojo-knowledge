@@ -83,19 +83,6 @@
 - **発生回数**: 1
 - **概要**: 見出しとして機能するテキストが太字（emphasis）で表現されており、markdown の heading 記号を使用すべき
 - **推奨対応**: 太字（**テキスト**）を適切な見出しレベル（#### テキスト など）に変更してください。markdownlint の MD036 ルールに準拠します。
-- **コード例**:
-  ```
-  // NG
-  **サブエージェント結果の集約**
-
-ここから説明が始まります...
-  ```
-  ```
-  // OK
-  #### サブエージェント結果の集約
-
-ここから説明が始まります...
-  ```
 - **対象ファイル例**: `plugins/michi/commands/michi/spec-impl.md`
 - **参照PR**:
   - https://github.com/sk8metalme/michi/pull/166
@@ -107,25 +94,36 @@
 - **発生回数**: 1
 - **概要**: フェンス付きコードブロックに言語タグが指定されていないため、markdownlint の MD040 ルールに違反している
 - **推奨対応**: コードブロックの開始記号（```）の後に適切な言語タグ（bash、text、json など）を追加してください。
+- **対象ファイル例**: `plugins/michi/commands/michi/spec-design.md`
+- **参照PR**:
+  - https://github.com/sk8metalme/michi/pull/166
+
+---
+## Markdownのfenced code blocksに言語タグが必要
+
+- **重要度**: info
+- **発生回数**: 1
+- **概要**: ディレクトリ構造を示すコードブロックに言語識別子が指定されていない
+- **推奨対応**: コードブロックの開始記号を ``` から ```text に変更し、Markdownリンターが認識できるようにする
 - **コード例**:
   ```
   // NG
   ```
-CIプラットフォームを選択してください:
-A) GitHub Actions（推奨）
-B) Screwdriver
+src/
+├── index.ts
+├── core/
 ```
   ```
   ```
   // OK
   ```text
-CIプラットフォームを選択してください:
-A) GitHub Actions（推奨）
-B) Screwdriver
+src/
+├── index.ts
+├── core/
 ```
   ```
-- **対象ファイル例**: `plugins/michi/commands/michi/spec-design.md`
+- **対象ファイル例**: `plugins/development-toolkit/skills/claude-md-creator/assets/templates/library.md`
 - **参照PR**:
-  - https://github.com/sk8metalme/michi/pull/166
+  - https://github.com/sk8metalme/ai-agent-setup/pull/60
 
 ---
