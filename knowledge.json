@@ -74,17 +74,32 @@
       "file_path": "CLAUDE-guardrail.md",
       "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/61",
       "original_comment": "SessionEnd「会話コンテキスト喪失」の説明が不正確: SessionEndはセッション終了後に実行されるため、そもそも会話コンテキストへのアクセスが設計されていません。「喪失」ではなく「アクセス対象外」と表現する方が正確です。"
+    },
+    {
+      "category": "security",
+      "language": "shell",
+      "severity": "warning",
+      "title": "AppleScript内のシェル変数エスケープ不足",
+      "summary": "AppleScriptのdo scriptブロック内でシェル変数（PROJECT_ROOT、SESSION_ID、LOG_FILE）を直接埋め込むと、空白やクォート文字が含まれる場合にスクリプトが壊れる可能性がある",
+      "recommendation": "printf '%q'を使用して変数をエスケープするか、AppleScriptに環境変数経由で安全に渡す。例: ESC_PROJECT_ROOT=$(printf '%q' \"$PROJECT_ROOT\")のようにエスケープされた変数を作成し、do scriptブロック内で使用する",
+      "code_example": {
+        "bad": "osascript <<EOF\ntell application \"Terminal\"\n    do script \"\n        cd '$PROJECT_ROOT' || exit 1\n    \"\nend tell\nEOF",
+        "good": "# 変数のエスケープ\nESCAPED_PROJECT_ROOT=\"${PROJECT_ROOT//'/'\\\\'}\"\n\nosascript <<EOF\ntell application \"Terminal\"\n    do script \"\n        cd '$ESCAPED_PROJECT_ROOT' || exit 1\n    \"\nend tell\nEOF"
+      },
+      "file_path": "plugins/guardrail-builder/hooks/guardrail-builder-hook.sh",
+      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/62",
+      "original_comment": "パスに空白や特殊文字が含まれる場合、AppleScript が壊れる可能性があります。PROJECT_ROOT や SESSION_ID に空白やクォート文字が含まれると、AppleScript 内でのシェルスクリプト実行が失敗する可能性があります。変数をエスケープすることで修正可能。"
     }
   ],
   "skipped_comments": [],
   "metadata": {
-    "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/61",
-    "pr_number": "61",
+    "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/62",
+    "pr_number": "62",
     "repository": "sk8metalme/ai-agent-setup",
-    "extraction_date": "2026-01-13",
-    "total_review_threads": 5,
-    "resolved_threads": 5,
-    "extracted_knowledge_count": 5,
+    "extraction_date": "2026-01-14",
+    "total_review_threads": 1,
+    "resolved_threads": 1,
+    "extracted_knowledge_count": 6,
     "skipped_comments_count": 0
   }
 }

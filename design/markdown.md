@@ -47,24 +47,9 @@
 ## ドキュメントとコード実装の一貫性維持
 
 - **重要度**: warning
-- **発生回数**: 1
+- **発生回数**: 2
 - **概要**: ドキュメント内容がPRの実装変更と矛盾している。プラグインベースのhooks.json実装（v1.8.0）を説明しているが、PRはv1.7.0へのロールバックでプラグイン側フックを削除し、グローバル配布に移行している。
 - **推奨対応**: ドキュメントを削除するか、プラグインアプローチがPhase 2で試験された後にグローバル配布アプローチに置き換えられたことを明記し、現在の実装（global/hooks/guardrail-builder-hook.shとグローバル設定）を反映する。
-- **コード例**:
-  ```
-  // NG
-  - **2026-01-13** guardrail-builderはプラグインhooks.jsonでSessionEndフック実装（v1.8.0）
-  - `plugins/development-toolkit/hooks/hooks.json` で定義
-  - `${CLAUDE_PLUGIN_ROOT}/scripts/guardrail-builder-hook.sh` を実行
-  ```
-  ```
-  // OK
-  - **2026-01-13** guardrail-builderはグローバルSessionEndフック実装（v1.7.0）
-  - `global/hooks/guardrail-builder-hook.sh` で定義
-  - `install-global.sh` でデフォルト有効化
-  - `~/.claude/settings.json` の hooks.SessionEnd に登録
-  - 注: v1.8.0のプラグインhooks.jsonアプローチは試験後、グローバル配布に置き換え
-  ```
 - **対象ファイル例**: `CLAUDE-guardrail.md`
 - **参照PR**:
   - https://github.com/sk8metalme/ai-agent-setup/pull/61
@@ -73,18 +58,9 @@
 ## 削除された機能への推奨を更新
 
 - **重要度**: warning
-- **発生回数**: 1
+- **発生回数**: 2
 - **概要**: ドキュメントで削除されたアプローチ（プラグインhooks.json）を推奨している。完全自動化にはプラグインhooks.jsonのSessionEndフックを使用すると記載されているが、このPRではプラグインフックが削除されている。
 - **推奨対応**: 現在の推奨実装（グローバルSessionEndフック via install-global.sh）を反映するようドキュメントを更新する。
-- **コード例**:
-  ```
-  // NG
-  - 完全自動化には**プラグインhooks.json**のSessionEndフックを使用する
-  ```
-  ```
-  // OK
-  - 完全自動化には**グローバルSessionEndフック**（`install-global.sh`）を使用する
-  ```
 - **対象ファイル例**: `CLAUDE-guardrail.md`
 - **参照PR**:
   - https://github.com/sk8metalme/ai-agent-setup/pull/61
@@ -93,25 +69,9 @@
 ## 削除された機能のドキュメントを歴史的記録として更新
 
 - **重要度**: warning
-- **発生回数**: 1
+- **発生回数**: 2
 - **概要**: プラグインhooks.jsonの構造と定義方法を説明しているが、このPRではプラグイン側のフックが削除されている。削除された機能を現在も利用可能であるかのように説明している。
 - **推奨対応**: Phase 2で試験されたが削除されたことを明記（歴史的記録として）するか、グローバルフックの構造に置き換える。
-- **コード例**:
-  ```
-  // NG
-  - **2026-01-13** プラグインhooks.jsonの構造と定義方法
-  - `plugins/<name>/hooks/hooks.json` にフック定義を配置
-  - `plugin.json` に `"hooks": "./hooks/hooks.json"` を追加
-  - 注: plugin.json内でのインライン定義は非対応（別ファイルが必須）
-  ```
-  ```
-  // OK
-  - **2026-01-13** プラグインhooks.jsonの構造（Phase 2で試験、v1.8.0→v1.7.0で削除）
-  - `plugins/<name>/hooks/hooks.json` にフック定義を配置
-  - `plugin.json` に `"hooks": "./hooks/hooks.json"` を追加
-  - `${CLAUDE_PLUGIN_ROOT}` でプラグインルートディレクトリを参照
-  - 注: グローバル配布アプローチ（`~/.claude/hooks/`）に置き換えられた
-  ```
 - **対象ファイル例**: `CLAUDE-guardrail.md`
 - **参照PR**:
   - https://github.com/sk8metalme/ai-agent-setup/pull/61
@@ -120,22 +80,9 @@
 ## SessionEndとStopフックの技術仕様の正確性
 
 - **重要度**: info
-- **発生回数**: 1
+- **発生回数**: 2
 - **概要**: SessionEndとStopフックの会話コンテキストに関する説明が不正確。SessionEndは「会話コンテキスト喪失」ではなく「アクセス対象外」が正確。Stopの「会話コンテキスト利用可能」は公式ドキュメントに根拠なし。
 - **推奨対応**: SessionEnd=セッション終了後に実行されるため会話コンテキストへのアクセス対象外。Stop=応答終了時の停止制御用途。推奨理由を会話コンテキストではなく、実際の設計意図（SessionEnd=クリーンアップ・ロギング、Stop=停止制御）に基づいて修正する。
-- **コード例**:
-  ```
-  // NG
-  - SessionEnd: 会話コンテキスト喪失
-- Stop: 会話コンテキスト利用可能
-- 自動化ならSessionEnd、高精度分析ならStop
-  ```
-  ```
-  // OK
-  - SessionEnd: 会話コンテキストへのアクセス対象外（設計上）
-- Stop: 停止制御用途（コンテキスト注入機能は公式ドキュメントに記載なし）
-- SessionEnd=クリーンアップ・ロギング用途、Stop=停止制御用途
-  ```
 - **対象ファイル例**: `CLAUDE-guardrail.md`
 - **参照PR**:
   - https://github.com/sk8metalme/ai-agent-setup/pull/61
