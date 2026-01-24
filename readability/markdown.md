@@ -116,17 +116,32 @@
 - **発生回数**: 1
 - **概要**: ドキュメント内で削除済みファイルへの参照が残っており、読者を混乱させる可能性がある
 - **推奨対応**: 削除されたファイルへの参照は、削除するか過去形の記述に変更する（例: 「v1.0.0 時点の実装」）
-- **コード例**:
-  ```
-  // NG
-  - 参考: plugins/guardrail-builder/hooks/guardrail-builder-hook.sh の実装
-  ```
-  ```
-  // OK
-  - 参考: v1.0.0 時点の guardrail-builder-hook.sh 実装（v1.1.0 で削除済み）
-  ```
 - **対象ファイル例**: `CLAUDE-guardrail.md`
 - **参照PR**:
   - https://github.com/sk8metalme/ai-agent-setup/pull/65
+
+---
+## Markdown Linting - Fenced Code Block Language Specifier
+
+- **重要度**: info
+- **発生回数**: 1
+- **概要**: Markdown のコードブロックに言語指定がないと、MD040 lint ルールに違反し、シンタックスハイライトも適用されない
+- **推奨対応**: すべてのフェンスコードブロック（```）には適切な言語指定子を追加する。プレーンテキストの場合は ```text を使用する。これにより lint エラーを回避し、可読性も向上する。
+- **コード例**:
+  ```
+  // NG
+  ```
+「このプロジェクトの[対象領域]について調査してください」
+```
+  ```
+  ```
+  // OK
+  ```text
+「このプロジェクトの[対象領域]について調査してください」
+```
+  ```
+- **対象ファイル例**: `plugins/deep-dive/skills/deep-dive/SKILL.md`
+- **参照PR**:
+  - https://github.com/sk8metalme/ai-agent-setup/pull/66
 
 ---

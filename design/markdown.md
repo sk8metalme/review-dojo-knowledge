@@ -88,3 +88,32 @@
   - https://github.com/sk8metalme/ai-agent-setup/pull/61
 
 ---
+## Claude Plugin - Documentation and Configuration Consistency
+
+- **重要度**: warning
+- **発生回数**: 1
+- **概要**: ドキュメント内でツールの使用方法を説明する際、設定ファイル（フロントマター）の許可設定と不整合があると実運用時にエラーになる設計上の問題
+- **推奨対応**: プラグイン・スキルの設計時には、ドキュメントで説明する機能と、実際の権限設定（allowed-tools）を一致させること。説明と実装の乖離を防ぐため、レビュー時に両者の整合性を確認するチェックリストを用意することが推奨される。
+- **コード例**:
+  ```
+  // NG
+  # Documentation describes using Task tool
+# But frontmatter doesn't grant permission
+---
+allowed-tools: Read, Write
+---
+Use Task tool for parallel execution...
+  ```
+  ```
+  // OK
+  # Documentation and permissions are aligned
+---
+allowed-tools: Read, Write, Task
+---
+Use Task tool for parallel execution...
+  ```
+- **対象ファイル例**: `plugins/design-review/skills/design-review/SKILL.md`
+- **参照PR**:
+  - https://github.com/sk8metalme/ai-agent-setup/pull/66
+
+---

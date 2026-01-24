@@ -1,39 +1,60 @@
 {
   "knowledge_items": [
     {
-      "category": "readability",
+      "category": "error-handling",
       "language": "markdown",
       "severity": "warning",
-      "title": "削除されたファイルへの参照を更新する",
-      "summary": "ドキュメント内で削除済みファイルへの参照が残っており、読者を混乱させる可能性がある",
-      "recommendation": "削除されたファイルへの参照は、削除するか過去形の記述に変更する（例: 「v1.0.0 時点の実装」）",
+      "title": "Claude Plugin Skill Definition - Tool Permission Configuration Mismatch",
+      "summary": "SKILL.md で Task ツールの使用を説明しているが、フロントマターの allowed-tools リストに Task が含まれていないため、実行時にブロックされる問題",
+      "recommendation": "SKILL.md のフロントマター allowed-tools に、本文で使用を説明しているすべてのツール（Task など）を含める必要がある。ツール使用と許可設定の整合性を保つこと。",
       "code_example": {
-        "bad": "- 参考: plugins/guardrail-builder/hooks/guardrail-builder-hook.sh の実装",
-        "good": "- 参考: v1.0.0 時点の guardrail-builder-hook.sh 実装（v1.1.0 で削除済み）"
+        "bad": "---\nallowed-tools: AskUserQuestion, Read, Grep, Glob\n---\n\n## ステップ\nTaskツールで複数のサブエージェントを並列起動...",
+        "good": "---\nallowed-tools: AskUserQuestion, Read, Grep, Glob, Task\n---\n\n## ステップ\nTaskツールで複数のサブエージェントを並列起動..."
       },
-      "file_path": "CLAUDE-guardrail.md",
-      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/65",
-      "original_comment": "削除されたファイルへの参照があります。Line 66 で `plugins/guardrail-builder/hooks/guardrail-builder-hook.sh` を参照していますが、このファイルは本 PR で削除されています。参照を削除するか、「v1.0.0 時点の実装」など過去形の記述に変更することを推奨します。"
-    }
-  ],
-  "skipped_comments": [
-    {
-      "reason": "簡潔な修正依頼のみ（具体的な技術知見がない）",
-      "comment_preview": "descriptionを日本語に"
+      "file_path": "plugins/deep-dive/skills/deep-dive/SKILL.md",
+      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/66",
+      "original_comment": "Step 1-B で Task を使う手順が追加されていますが、フロントマターの allowed-tools に Task が含まれていません。実行時にブロックされる可能性があるため、許可設定を追加してください。"
     },
     {
-      "reason": "質問・確認コメント（技術的な知見ではない）",
-      "comment_preview": "guardrail.mdは何に使うのか？guardrail-builderでは、.claude/rules以下にルール毎にmdを作成する理解。"
+      "category": "design",
+      "language": "markdown",
+      "severity": "warning",
+      "title": "Claude Plugin - Documentation and Configuration Consistency",
+      "summary": "ドキュメント内でツールの使用方法を説明する際、設定ファイル（フロントマター）の許可設定と不整合があると実運用時にエラーになる設計上の問題",
+      "recommendation": "プラグイン・スキルの設計時には、ドキュメントで説明する機能と、実際の権限設定（allowed-tools）を一致させること。説明と実装の乖離を防ぐため、レビュー時に両者の整合性を確認するチェックリストを用意することが推奨される。",
+      "code_example": {
+        "bad": "# Documentation describes using Task tool\n# But frontmatter doesn't grant permission\n---\nallowed-tools: Read, Write\n---\nUse Task tool for parallel execution...",
+        "good": "# Documentation and permissions are aligned\n---\nallowed-tools: Read, Write, Task\n---\nUse Task tool for parallel execution..."
+      },
+      "file_path": "plugins/design-review/skills/design-review/SKILL.md",
+      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/66",
+      "original_comment": "本文で「Taskツールで複数のサブエージェントを並列起動」とありますが、フロントマターの `allowed-tools` に `Task` が含まれていないため、実運用で実行不可になります。`allowed-tools` に `Task`（必要ならサブエージェント起動に必要な権限）を追加するか、本文を現行許可ツールに合わせて調整してください。"
+    },
+    {
+      "category": "readability",
+      "language": "markdown",
+      "severity": "info",
+      "title": "Markdown Linting - Fenced Code Block Language Specifier",
+      "summary": "Markdown のコードブロックに言語指定がないと、MD040 lint ルールに違反し、シンタックスハイライトも適用されない",
+      "recommendation": "すべてのフェンスコードブロック（```）には適切な言語指定子を追加する。プレーンテキストの場合は ```text を使用する。これにより lint エラーを回避し、可読性も向上する。",
+      "code_example": {
+        "bad": "```\n「このプロジェクトの[対象領域]について調査してください」\n```",
+        "good": "```text\n「このプロジェクトの[対象領域]について調査してください」\n```"
+      },
+      "file_path": "plugins/deep-dive/skills/deep-dive/SKILL.md",
+      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/66",
+      "original_comment": "MD040 により、フェンスコードブロックに言語指定が必要です。例えば `text` などを付けると lint が通ります。"
     }
   ],
+  "skipped_comments": [],
   "metadata": {
-    "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/65",
-    "pr_number": "65",
+    "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/66",
+    "pr_number": "66",
     "repository": "sk8metalme/ai-agent-setup",
     "extraction_date": "2026-01-24",
-    "total_review_threads": 5,
+    "total_review_threads": 3,
     "resolved_threads": 3,
-    "extracted_knowledge_count": 1,
-    "skipped_comments_count": 2
+    "extracted_knowledge_count": 3,
+    "skipped_comments_count": 0
   }
 }
