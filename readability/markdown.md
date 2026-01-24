@@ -124,22 +124,9 @@
 ## Markdown Linting - Fenced Code Block Language Specifier
 
 - **重要度**: info
-- **発生回数**: 1
+- **発生回数**: 2
 - **概要**: Markdown のコードブロックに言語指定がないと、MD040 lint ルールに違反し、シンタックスハイライトも適用されない
 - **推奨対応**: すべてのフェンスコードブロック（```）には適切な言語指定子を追加する。プレーンテキストの場合は ```text を使用する。これにより lint エラーを回避し、可読性も向上する。
-- **コード例**:
-  ```
-  // NG
-  ```
-「このプロジェクトの[対象領域]について調査してください」
-```
-  ```
-  ```
-  // OK
-  ```text
-「このプロジェクトの[対象領域]について調査してください」
-```
-  ```
 - **対象ファイル例**: `plugins/deep-dive/skills/deep-dive/SKILL.md`
 - **参照PR**:
   - https://github.com/sk8metalme/ai-agent-setup/pull/66
