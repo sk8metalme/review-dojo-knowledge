@@ -1,105 +1,39 @@
 {
   "knowledge_items": [
     {
-      "category": "design",
+      "category": "readability",
       "language": "markdown",
       "severity": "warning",
-      "title": "ドキュメントとコード実装の一貫性維持",
-      "summary": "ドキュメント内容がPRの実装変更と矛盾している。プラグインベースのhooks.json実装（v1.8.0）を説明しているが、PRはv1.7.0へのロールバックでプラグイン側フックを削除し、グローバル配布に移行している。",
-      "recommendation": "ドキュメントを削除するか、プラグインアプローチがPhase 2で試験された後にグローバル配布アプローチに置き換えられたことを明記し、現在の実装（global/hooks/guardrail-builder-hook.shとグローバル設定）を反映する。",
+      "title": "削除されたファイルへの参照を更新する",
+      "summary": "ドキュメント内で削除済みファイルへの参照が残っており、読者を混乱させる可能性がある",
+      "recommendation": "削除されたファイルへの参照は、削除するか過去形の記述に変更する（例: 「v1.0.0 時点の実装」）",
       "code_example": {
-        "bad": "- **2026-01-13** guardrail-builderはプラグインhooks.jsonでSessionEndフック実装（v1.8.0）\n  - `plugins/development-toolkit/hooks/hooks.json` で定義\n  - `${CLAUDE_PLUGIN_ROOT}/scripts/guardrail-builder-hook.sh` を実行",
-        "good": "- **2026-01-13** guardrail-builderはグローバルSessionEndフック実装（v1.7.0）\n  - `global/hooks/guardrail-builder-hook.sh` で定義\n  - `install-global.sh` でデフォルト有効化\n  - `~/.claude/settings.json` の hooks.SessionEnd に登録\n  - 注: v1.8.0のプラグインhooks.jsonアプローチは試験後、グローバル配布に置き換え"
+        "bad": "- 参考: plugins/guardrail-builder/hooks/guardrail-builder-hook.sh の実装",
+        "good": "- 参考: v1.0.0 時点の guardrail-builder-hook.sh 実装（v1.1.0 で削除済み）"
       },
       "file_path": "CLAUDE-guardrail.md",
-      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/61",
-      "original_comment": "このセクションはプラグインhooks.jsonによるSessionEnd実装（v1.8.0）を説明していますが、このPRは開発ツールキットをv1.7.0にロールバックし、プラグイン側のフックを削除してグローバル配布に移行するものです。"
-    },
-    {
-      "category": "design",
-      "language": "markdown",
-      "severity": "warning",
-      "title": "削除された機能への推奨を更新",
-      "summary": "ドキュメントで削除されたアプローチ（プラグインhooks.json）を推奨している。完全自動化にはプラグインhooks.jsonのSessionEndフックを使用すると記載されているが、このPRではプラグインフックが削除されている。",
-      "recommendation": "現在の推奨実装（グローバルSessionEndフック via install-global.sh）を反映するようドキュメントを更新する。",
-      "code_example": {
-        "bad": "- 完全自動化には**プラグインhooks.json**のSessionEndフックを使用する",
-        "good": "- 完全自動化には**グローバルSessionEndフック**（`install-global.sh`）を使用する"
-      },
-      "file_path": "CLAUDE-guardrail.md",
-      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/61",
-      "original_comment": "スキルStopフックの制約を説明し、完全自動化にはプラグインhooks.jsonを推奨していますが、このPRではプラグインフックを削除しています。現在の推奨は**グローバルSessionEndフック**（`install-global.sh`経由）です。"
-    },
-    {
-      "category": "design",
-      "language": "markdown",
-      "severity": "warning",
-      "title": "削除された機能のドキュメントを歴史的記録として更新",
-      "summary": "プラグインhooks.jsonの構造と定義方法を説明しているが、このPRではプラグイン側のフックが削除されている。削除された機能を現在も利用可能であるかのように説明している。",
-      "recommendation": "Phase 2で試験されたが削除されたことを明記（歴史的記録として）するか、グローバルフックの構造に置き換える。",
-      "code_example": {
-        "bad": "- **2026-01-13** プラグインhooks.jsonの構造と定義方法\n  - `plugins/<name>/hooks/hooks.json` にフック定義を配置\n  - `plugin.json` に `\"hooks\": \"./hooks/hooks.json\"` を追加\n  - 注: plugin.json内でのインライン定義は非対応（別ファイルが必須）",
-        "good": "- **2026-01-13** プラグインhooks.jsonの構造（Phase 2で試験、v1.8.0→v1.7.0で削除）\n  - `plugins/<name>/hooks/hooks.json` にフック定義を配置\n  - `plugin.json` に `\"hooks\": \"./hooks/hooks.json\"` を追加\n  - `${CLAUDE_PLUGIN_ROOT}` でプラグインルートディレクトリを参照\n  - 注: グローバル配布アプローチ（`~/.claude/hooks/`）に置き換えられた"
-      },
-      "file_path": "CLAUDE-guardrail.md",
-      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/61",
-      "original_comment": "プラグインhooks.jsonの構造と定義方法を説明していますが、このPRではプラグイン側のフックが削除されています。このエントリは以下のいずれかに修正すべきです"
-    },
-    {
-      "category": "design",
-      "language": "json",
-      "severity": "info",
-      "title": "SessionEndフックから不要なmatcherフィールドを削除",
-      "summary": "SessionEndフックにmatcherフィールドが含まれているが、matcherはPreToolUse/PostToolUseフックにのみ適用される。SessionEndフックはイベントデータ（reason等）を受け取るため、ツール選別マッチャーは不要。",
-      "recommendation": "設定を明確にするため、SessionEndフックからmatcherフィールドを削除する。",
-      "code_example": {
-        "bad": "\"SessionEnd\": [\n  {\n    \"matcher\": \"\",\n    \"hooks\": [\n      {\n        \"type\": \"command\",\n        \"command\": \"~/.claude/hooks/guardrail-builder-hook.sh\"\n      }\n    ]\n  }\n]",
-        "good": "\"SessionEnd\": [\n  {\n    \"hooks\": [\n      {\n        \"type\": \"command\",\n        \"command\": \"~/.claude/hooks/guardrail-builder-hook.sh\"\n      }\n    ]\n  }\n]"
-      },
-      "file_path": "global/settings.template.json",
-      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/61",
-      "original_comment": "`matcher` フィールドは PreToolUse/PostToolUse フックにのみ適用され、SessionEnd フックには適用されません。SessionEnd フックはイベント理由（reason）を含むイベントデータを受け取りますが、ツール選別マッチャーは不要です。"
-    },
-    {
-      "category": "design",
-      "language": "markdown",
-      "severity": "info",
-      "title": "SessionEndとStopフックの技術仕様の正確性",
-      "summary": "SessionEndとStopフックの会話コンテキストに関する説明が不正確。SessionEndは「会話コンテキスト喪失」ではなく「アクセス対象外」が正確。Stopの「会話コンテキスト利用可能」は公式ドキュメントに根拠なし。",
-      "recommendation": "SessionEnd=セッション終了後に実行されるため会話コンテキストへのアクセス対象外。Stop=応答終了時の停止制御用途。推奨理由を会話コンテキストではなく、実際の設計意図（SessionEnd=クリーンアップ・ロギング、Stop=停止制御）に基づいて修正する。",
-      "code_example": {
-        "bad": "- SessionEnd: 会話コンテキスト喪失\n- Stop: 会話コンテキスト利用可能\n- 自動化ならSessionEnd、高精度分析ならStop",
-        "good": "- SessionEnd: 会話コンテキストへのアクセス対象外（設計上）\n- Stop: 停止制御用途（コンテキスト注入機能は公式ドキュメントに記載なし）\n- SessionEnd=クリーンアップ・ロギング用途、Stop=停止制御用途"
-      },
-      "file_path": "CLAUDE-guardrail.md",
-      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/61",
-      "original_comment": "SessionEnd「会話コンテキスト喪失」の説明が不正確: SessionEndはセッション終了後に実行されるため、そもそも会話コンテキストへのアクセスが設計されていません。「喪失」ではなく「アクセス対象外」と表現する方が正確です。"
-    },
-    {
-      "category": "security",
-      "language": "shell",
-      "severity": "warning",
-      "title": "AppleScript内のシェル変数エスケープ不足",
-      "summary": "AppleScriptのdo scriptブロック内でシェル変数（PROJECT_ROOT、SESSION_ID、LOG_FILE）を直接埋め込むと、空白やクォート文字が含まれる場合にスクリプトが壊れる可能性がある",
-      "recommendation": "printf '%q'を使用して変数をエスケープするか、AppleScriptに環境変数経由で安全に渡す。例: ESC_PROJECT_ROOT=$(printf '%q' \"$PROJECT_ROOT\")のようにエスケープされた変数を作成し、do scriptブロック内で使用する",
-      "code_example": {
-        "bad": "osascript <<EOF\ntell application \"Terminal\"\n    do script \"\n        cd '$PROJECT_ROOT' || exit 1\n    \"\nend tell\nEOF",
-        "good": "# 変数のエスケープ\nESCAPED_PROJECT_ROOT=\"${PROJECT_ROOT//'/'\\\\'}\"\n\nosascript <<EOF\ntell application \"Terminal\"\n    do script \"\n        cd '$ESCAPED_PROJECT_ROOT' || exit 1\n    \"\nend tell\nEOF"
-      },
-      "file_path": "plugins/guardrail-builder/hooks/guardrail-builder-hook.sh",
-      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/62",
-      "original_comment": "パスに空白や特殊文字が含まれる場合、AppleScript が壊れる可能性があります。PROJECT_ROOT や SESSION_ID に空白やクォート文字が含まれると、AppleScript 内でのシェルスクリプト実行が失敗する可能性があります。変数をエスケープすることで修正可能。"
+      "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/65",
+      "original_comment": "削除されたファイルへの参照があります。Line 66 で `plugins/guardrail-builder/hooks/guardrail-builder-hook.sh` を参照していますが、このファイルは本 PR で削除されています。参照を削除するか、「v1.0.0 時点の実装」など過去形の記述に変更することを推奨します。"
     }
   ],
-  "skipped_comments": [],
+  "skipped_comments": [
+    {
+      "reason": "簡潔な修正依頼のみ（具体的な技術知見がない）",
+      "comment_preview": "descriptionを日本語に"
+    },
+    {
+      "reason": "質問・確認コメント（技術的な知見ではない）",
+      "comment_preview": "guardrail.mdは何に使うのか？guardrail-builderでは、.claude/rules以下にルール毎にmdを作成する理解。"
+    }
+  ],
   "metadata": {
-    "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/62",
-    "pr_number": "62",
+    "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/65",
+    "pr_number": "65",
     "repository": "sk8metalme/ai-agent-setup",
-    "extraction_date": "2026-01-14",
-    "total_review_threads": 1,
-    "resolved_threads": 1,
-    "extracted_knowledge_count": 6,
-    "skipped_comments_count": 0
+    "extraction_date": "2026-01-24",
+    "total_review_threads": 5,
+    "resolved_threads": 3,
+    "extracted_knowledge_count": 1,
+    "skipped_comments_count": 2
   }
 }

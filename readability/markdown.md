@@ -105,25 +105,28 @@
 - **発生回数**: 1
 - **概要**: ディレクトリ構造を示すコードブロックに言語識別子が指定されていない
 - **推奨対応**: コードブロックの開始記号を ``` から ```text に変更し、Markdownリンターが認識できるようにする
-- **コード例**:
-  ```
-  // NG
-  ```
-src/
-├── index.ts
-├── core/
-```
-  ```
-  ```
-  // OK
-  ```text
-src/
-├── index.ts
-├── core/
-```
-  ```
 - **対象ファイル例**: `plugins/development-toolkit/skills/claude-md-creator/assets/templates/library.md`
 - **参照PR**:
   - https://github.com/sk8metalme/ai-agent-setup/pull/60
+
+---
+## 削除されたファイルへの参照を更新する
+
+- **重要度**: warning
+- **発生回数**: 1
+- **概要**: ドキュメント内で削除済みファイルへの参照が残っており、読者を混乱させる可能性がある
+- **推奨対応**: 削除されたファイルへの参照は、削除するか過去形の記述に変更する（例: 「v1.0.0 時点の実装」）
+- **コード例**:
+  ```
+  // NG
+  - 参考: plugins/guardrail-builder/hooks/guardrail-builder-hook.sh の実装
+  ```
+  ```
+  // OK
+  - 参考: v1.0.0 時点の guardrail-builder-hook.sh 実装（v1.1.0 で削除済み）
+  ```
+- **対象ファイル例**: `CLAUDE-guardrail.md`
+- **参照PR**:
+  - https://github.com/sk8metalme/ai-agent-setup/pull/65
 
 ---
