@@ -91,11 +91,38 @@
 ## Claude Plugin - Documentation and Configuration Consistency
 
 - **重要度**: warning
-- **発生回数**: 2
+- **発生回数**: 3
 - **概要**: ドキュメント内でツールの使用方法を説明する際、設定ファイル（フロントマター）の許可設定と不整合があると実運用時にエラーになる設計上の問題
 - **推奨対応**: プラグイン・スキルの設計時には、ドキュメントで説明する機能と、実際の権限設定（allowed-tools）を一致させること。説明と実装の乖離を防ぐため、レビュー時に両者の整合性を確認するチェックリストを用意することが推奨される。
 - **対象ファイル例**: `plugins/design-review/skills/design-review/SKILL.md`
 - **参照PR**:
   - https://github.com/sk8metalme/ai-agent-setup/pull/66
+
+---
+## 自律的な作業進行における初回設定時のユーザ確認許容
+
+- **重要度**: warning
+- **発生回数**: 1
+- **概要**: 自律的な作業進行を要求する機能において、Step3の初回設定が完了していない場合のみ、ユーザへの確認を許容する必要がある
+- **推奨対応**: 自律的なワークフロー設計時は、初期設定フェーズと通常運用フェーズを明確に区別し、初期設定時のみユーザインタラクションを許可する実装パターンを採用すること
+- **コード例**:
+  ```
+  // NG
+  // 常にユーザ確認を求める
+if (needsConfirmation()) {
+  await askUser();
+}
+  ```
+  ```
+  // OK
+  // 初回設定時のみユーザ確認を許容
+if (!isInitialSetupComplete() && needsConfirmation()) {
+  await askUser();
+} else {
+  // 自律的に処理を進行
+  await proceedAutonomously();
+}
+  ```
+- **対象ファイル例**: `plugins/daily-knowledge-sync/skills/daily-knowledge-sync/SKILL.md`
 
 ---

@@ -44,17 +44,32 @@
       "file_path": "plugins/deep-dive/skills/deep-dive/SKILL.md",
       "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/66",
       "original_comment": "MD040 により、フェンスコードブロックに言語指定が必要です。例えば `text` などを付けると lint が通ります。"
+    },
+    {
+      "category": "design",
+      "language": "markdown",
+      "severity": "warning",
+      "title": "自律的な作業進行における初回設定時のユーザ確認許容",
+      "summary": "自律的な作業進行を要求する機能において、Step3の初回設定が完了していない場合のみ、ユーザへの確認を許容する必要がある",
+      "recommendation": "自律的なワークフロー設計時は、初期設定フェーズと通常運用フェーズを明確に区別し、初期設定時のみユーザインタラクションを許可する実装パターンを採用すること",
+      "code_example": {
+        "bad": "// 常にユーザ確認を求める\nif (needsConfirmation()) {\n  await askUser();\n}",
+        "good": "// 初回設定時のみユーザ確認を許容\nif (!isInitialSetupComplete() && needsConfirmation()) {\n  await askUser();\n} else {\n  // 自律的に処理を進行\n  await proceedAutonomously();\n}"
+      },
+      "file_path": "plugins/daily-knowledge-sync/skills/daily-knowledge-sync/SKILL.md",
+      "pr_url": "https://github.com/sk8metalme/review-dojo-knowledge",
+      "original_comment": "### 🚨 自律的な作業進行（必須）\nについて、\nStep3の初回設定が終わっていない時のみ、ユーザへの確認は許容すること。"
     }
   ],
   "skipped_comments": [],
   "metadata": {
-    "pr_url": "https://github.com/sk8metalme/ai-agent-setup/pull/66",
-    "pr_number": "66",
-    "repository": "sk8metalme/ai-agent-setup",
-    "extraction_date": "2026-01-24",
-    "total_review_threads": 3,
-    "resolved_threads": 3,
-    "extracted_knowledge_count": 3,
+    "pr_url": "https://github.com/sk8metalme/review-dojo-knowledge",
+    "pr_number": "unknown",
+    "repository": "sk8metalme/review-dojo-knowledge",
+    "extraction_date": "2026-01-31",
+    "total_review_threads": 1,
+    "resolved_threads": 1,
+    "extracted_knowledge_count": 4,
     "skipped_comments_count": 0
   }
 }
